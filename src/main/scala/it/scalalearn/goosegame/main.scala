@@ -1,6 +1,6 @@
 package it.scalalearn.goosegame
 
-object Main {
+object Main {    
     def main(args: Array[String]): Unit = {
         
     }

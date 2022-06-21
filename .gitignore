@@ -1,0 +1,11 @@
+.DS_Store
+
+.bloop
+.bsp/
+.idea
+.metals
+.vscode
+
+# sbt files produced at build
+project/**
+target

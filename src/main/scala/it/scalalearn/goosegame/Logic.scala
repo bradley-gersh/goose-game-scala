@@ -18,7 +18,6 @@ object Logic {
     }
   }
 
-  // check order of players? last player, next player?
   def movePlayer(oldGameState: Map[String, Int], name: String, die1: Int, die2: Int): Either[String, (Map[String, Int], String)] = {
     for {
       die1 <- validateDie(die1)

@@ -35,16 +35,18 @@ object Main {
         case Array("move", name, die1String, die2String) => {
           val die1 = if (die1String.last == ',')
               die1String.substring(0, die1String.length() - 1).toInt
-            else
-              die1String.toInt
+            else die1String.toInt
           val die2 = die2String.toInt
-
-          gameState.movePlayer(name, die1, die2)
+          
+          if (die1 < 1 || die1 > 6 || die2 < 1 || die2 > 6)
+            gameState.setStatus("dice must be have value from 1 to 6")
+          else gameState.movePlayer(name, die1, die2)
         }
         case Array("move", name) => {
           val random = Random(System.nanoTime())
           val die1 = random.nextInt(6) + 1
           val die2 = random.nextInt(6) + 1
+          
           gameState.movePlayer(name, die1, die2)
         }
         case _ => gameState.setStatus("unrecognized command")

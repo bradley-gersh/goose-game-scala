@@ -31,7 +31,7 @@ class MainTest extends AnyFunSuite {
   }
 
   test("Players can move by specifying dice") {
-    val gameState = GameState("Pluto", "Pippo")
+    val gameState = GameState("Pippo", "Pluto")
     val inputs = List("move Pippo 4, 2", "move Pluto 2, 2", "move Pippo 2, 3")
     val refOutputs = List(
       "Pippo rolls 4, 2. Pippo moves from Start to 6",
@@ -39,6 +39,13 @@ class MainTest extends AnyFunSuite {
       "Pippo rolls 2, 3. Pippo moves from 6 to 11"
     )
     assert(getScript(inputs, gameState) == refOutputs)
+  }
+
+  test("Dice cannot be specified outside range 1-6") {
+    val gameState = GameState("Pippo")
+    val inputs = List("move Pippo 4, 8")
+    val List(output) = getScript(inputs, gameState)
+    assert(output.contains("dice must be"))
   }
 
   test("Player wins if (s)he lands on square 63") {
@@ -62,7 +69,13 @@ class MainTest extends AnyFunSuite {
     assert(output.contains("Pippo rolls"))
     assert(output.contains("Pippo moves from"))
   }
-  // test("Dice cannot be outside range 1-6")
+
+  test("When player lands on space 6, (s)he advances to space 12") {
+    val gameStat = GameState(Map(("Pippo" -> 4)))
+    val inputs = List("move Pippo 1, 1")
+    val refOutputs = List("Pippo rolls 1, 1. Pippo moves from 4 to The Bridge. Pippo jumps to 12")
+  }
+
   // test("Cannot add player once the game has started")
   // test("Players must take turns in correct sequence")
 }

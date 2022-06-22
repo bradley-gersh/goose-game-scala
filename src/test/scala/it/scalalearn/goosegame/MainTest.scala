@@ -115,6 +115,41 @@ class MainTest extends AnyFunSuite {
     val refOutputs = List("Pippo rolls 1, 1. Pippo moves from 15 to 17. On 17 there is Pluto, who returns to 15")
     assert(getScript(inputs, gameState) == refOutputs)
   }
+
+  test("Combine a prank and a bounce") {
+    val gameState = Map(("Pippo" -> 62), ("Pluto" -> 60))
+    val inputs = List("move Pluto 2, 2")
+    val refOutputs = List("Pluto rolls 2, 2. Pluto moves from 60 to 63. Pluto bounces! Pluto returns to 62. On 62 there is Pippo, who returns to 60")
+    assert(getScript(inputs, gameState) == refOutputs)
+  }
+
+  test("Combine a prank and a bridge") {
+    val gameState = Map(("Pippo" -> 4), ("Pluto" -> 12))
+    val inputs = List("move Pippo 1, 1")
+    val refOutputs = List("Pippo rolls 1, 1. Pippo moves from 4 to The Bridge. Pippo jumps to 12. On 12 there is Pluto, who returns to 4")
+    assert(getScript(inputs, gameState) == refOutputs)
+  }
+
+  test("Combine a prank and a single Goose jump (prank at end)") {
+    val gameState = Map(("Pippo" -> 2), ("Pluto" -> 26))
+    val inputs = List("move Pippo 6, 6")
+    val refOutputs = List("Pippo rolls 6, 6. Pippo moves from 2 to 14, The Goose. Pippo moves again and goes to 26. On 26 there is Pluto, who returns to 2")
+    assert(getScript(inputs, gameState) == refOutputs)
+  }
+
+  test("Combine a prank and a double Goose jump (prank at end)") {
+    val gameState = Map(("Pippo" -> 4), ("Pluto" -> 19))
+    val inputs = List("move Pippo 2, 3")
+    val refOutputs = List("Pippo rolls 2, 3. Pippo moves from 4 to 9, The Goose. Pippo moves again and goes to 14, The Goose. Pippo moves again and goes to 19. On 19 there is Pluto, who returns to 4")
+    assert(getScript(inputs, gameState) == refOutputs)
+  }
+
+  test("Combine a prank and a double Goose jump (prank in middle)") {
+    val gameState = Map(("Pippo" -> 4), ("Pluto" -> 9))
+    val inputs = List("move Pippo 2, 3")
+    val refOutputs = List("Pippo rolls 2, 3. Pippo moves from 4 to 9, The Goose. On 9 there is Pluto, who returns to 4. Pippo moves again and goes to 14, The Goose. Pippo moves again and goes to 19")
+    assert(getScript(inputs, gameState) == refOutputs)
+  }
   // test("Cannot add player once the game has started")
   // test("Players must take turns in correct sequence")
 }

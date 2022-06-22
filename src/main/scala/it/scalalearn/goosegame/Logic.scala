@@ -26,17 +26,35 @@ object Logic {
       val status = new StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
       
       @tailrec
-      def advance(gameState: Map[String, Int], square: Int, status: StringBuilder): (Map[String, Int], StringBuilder) = (square + die1 + die2) match {
-        case LAST_SQUARE => (gameState + (name -> LAST_SQUARE), status.append(s"$LAST_SQUARE. $name Wins!!"))
-        case BRIDGE => (gameState + (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END"))
-        case newSquare if newSquare > LAST_SQUARE => {
-          val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
-          (gameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo"))
+      def advance(gameState: Map[String, Int], square: Int, status: StringBuilder): (Map[String, Int], StringBuilder) = {
+        square + die1 + die2 match {
+          case LAST_SQUARE => (gameState + (name -> LAST_SQUARE), status.append(s"$LAST_SQUARE. $name Wins!!"))
+
+          case BRIDGE =>
+            val (prankGameState, prankStatus) = checkPrank(gameState, BRIDGE_END)
+            (prankGameState + (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").append(prankStatus))
+
+          case newSquare if newSquare > LAST_SQUARE =>
+            val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
+            val (prankGameState, prankStatus) = checkPrank(gameState, bounceTo)
+            (prankGameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(prankStatus))
+
+          case newSquare if GOOSE_SQUARES(newSquare) =>
+            val (prankGameState, prankStatus) = checkPrank(gameState, newSquare)
+            advance(prankGameState + (name -> (newSquare + die1 + die2)),
+                    newSquare,
+                    status.append(s"$newSquare, The Goose").append(prankStatus).append(s". $name moves again and goes to "))
+          
+          case newSquare =>
+            val (prankGameState, prankStatus) = checkPrank(gameState, newSquare)
+            (prankGameState + (name -> newSquare), status.append(s"$newSquare").append(prankStatus))
         }
-        case newSquare if GOOSE_SQUARES(newSquare) => {
-          advance(gameState + (name -> (newSquare + die1 + die2)), newSquare, status.append(s"$newSquare, The Goose. $name moves again and goes to "))
-        }
-        case newSquare => (gameState + (name -> newSquare), status.append(s"$newSquare"))
+      }
+
+      def checkPrank(gameState: Map[String, Int], newSquare: Int): (Map[String, Int], StringBuilder) = {
+        val bumpNames = gameState.filter((otherName, otherSquare) => otherName != name && otherSquare == newSquare).keys
+        bumpNames.foldLeft((gameState, StringBuilder()))
+                          ((state, player) => (state._1 + (player -> oldSquare), state._2.append(s". On $newSquare there is $player, who returns to $oldSquare")))
       }
 
       val (newGameState, newStatus) = advance(oldGameState, oldSquare, status)

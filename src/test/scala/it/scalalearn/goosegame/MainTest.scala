@@ -83,6 +83,20 @@ class MainTest extends AnyFunSuite {
     val refOutputs = List("Pippo rolls 1, 1. Pippo moves from 3 to 5, The Goose. Pippo moves again and goes to 7")
     assert(getScript(inputs, gameState) == refOutputs)
   }
+
+  test("Squares 5, 9, 14, 18, 23, 27 are all Goose squares") {
+    val die1 = 1
+    val die2 = 3
+    val sum = die1 + die2
+
+    List(5, 9, 14, 18, 23, 27).foreach(goose => {
+      val gameState = GameState(Map(("Pippo" -> (goose - sum))))
+      val inputs = List(s"move Pippo $die1, $die2")
+      val refOutputs = List(s"Pippo rolls $die1, $die2. Pippo moves from ${goose - sum} to $goose, The Goose. Pippo moves again and goes to ${goose + sum}")
+      assert(getScript(inputs, gameState) == refOutputs)
+    })
+
+  }
   // test("Cannot add player once the game has started")
   // test("Players must take turns in correct sequence")
 }

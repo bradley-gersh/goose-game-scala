@@ -77,8 +77,12 @@ class MainTest extends AnyFunSuite {
     assert(getScript(inputs, gameState) == refOutputs)
   }
 
-  // test("Player doubles move if he or she lands on The Goose") {
-  // }
+  test("Player doubles move if he or she lands on The Goose") {
+    val gameState = GameState(Map(("Pippo" -> 3)))
+    val inputs = List("move Pippo 1, 1")
+    val refOutputs = List("Pippo rolls 1, 1. Pippo moves from 3 to 5, The Goose. Pippo moves again and goes to 7")
+    assert(getScript(inputs, gameState) == refOutputs)
+  }
   // test("Cannot add player once the game has started")
   // test("Players must take turns in correct sequence")
 }

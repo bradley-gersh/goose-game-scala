@@ -4,6 +4,7 @@ class GameState(val players: Map[String, Int], val status: String = "") {
   final val LAST_SQUARE = 63
   final val BRIDGE = 6
   final val BRIDGE_END = 12
+  final val GOOSE_SQUARES = Set(5, 9, 14, 18, 23, 27)
 
   def getPlayers: Map[String, Int] = players
 
@@ -28,6 +29,10 @@ class GameState(val players: Map[String, Int], val status: String = "") {
           case square if square > LAST_SQUARE => {
             val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
             GameState(players + (name -> bounceTo), newStatus.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").toString)
+          }
+          case square if GOOSE_SQUARES(square) => {
+            val doubleTo = newSquare + die1 + die2
+            GameState(players + (name -> doubleTo), newStatus.append(s"$newSquare, The Goose. $name moves again and goes to $doubleTo").toString)
           }
           case _ => GameState(players + (name -> newSquare), newStatus.append(s"$newSquare").toString)
         }

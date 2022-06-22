@@ -1,27 +1,43 @@
 package it.scalalearn.goosegame
 
-class GameState(val players: List[Player], val status: String = "") {
-    def getPlayers: List[Player] = players
+class GameState(val players: Map[String, Int], val status: String = "") {
+  final val LAST_SQUARE = 63
 
-    def addPlayer(newPlayer: Player): GameState = {
-        if (players.exists(_.name == newPlayer.name)) {
-            setStatus(s"${newPlayer.name}: already existing player")
-        } else {
-            val newPlayers = players :+ newPlayer
-            new GameState(newPlayers, s"players: ${newPlayers.map(_.name).mkString(", ")}")
-        }
+  def getPlayers: Map[String, Int] = players
+
+  def addPlayer(newPlayer: String): GameState = {
+    if (players.contains(newPlayer)) {
+      setStatus(s"$newPlayer: already existing player")
+    } else {
+      val newPlayers = players + (newPlayer -> 0)
+      GameState(newPlayers, s"players: ${newPlayers.keys.mkString(", ")}")
     }
+  }
+  // check order of players? last player, next player?
+  def movePlayer(name: String, die1: Int, die2: Int): GameState = {
+    players.get(name) match {
+      case Some(square) => {
+        val newSquare = square + die1 + die2
+        val newStatus = new StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (square == 0) "Start" else square} to ")
+        if (newSquare == LAST_SQUARE)
+          GameState(players + (name -> newSquare), newStatus.append(s"$LAST_SQUARE. $name Wins!!").toString)
+        else if (newSquare > LAST_SQUARE) {
+          val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
+          GameState(players + (name -> bounceTo), newStatus.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").toString)
+        } else
+          GameState(players + (name -> newSquare), newStatus.append(s"$newSquare").toString)
+      }
+      case None => GameState(players, s"$name: unrecognized player")
+    }
+  }
+  
+  def setStatus(newStatus: String): GameState =
+    GameState(players, newStatus)
     
-    def addPlayer(newPlayerName: String): GameState =
-        addPlayer(Player(newPlayerName, 0))
-
-    def setStatus(newStatus: String): GameState =
-        new GameState(players, newStatus)
-        
 }
 
 object GameState {
-    def apply() = new GameState(List[Player]())
-    def apply(players: List[Player]) = new GameState(players)
-    def apply(players: List[Player], status: String) = new GameState(players, status) 
+  def apply() = new GameState(Map[String, Int]())
+  def apply(players: Map[String, Int]) = new GameState(players)
+  def apply(players: Map[String, Int], status: String) = new GameState(players, status) 
 }

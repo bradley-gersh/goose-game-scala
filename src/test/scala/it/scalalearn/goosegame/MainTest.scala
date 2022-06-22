@@ -48,7 +48,7 @@ class MainTest extends AnyFunSuite {
     assert(output.contains("dice must be"))
   }
 
-  test("Player wins if (s)he lands on square 63") {
+  test("Player wins if he or she lands on square 63") {
     val gameState = GameState(Map(("Pippo" -> 60)))
     val inputs = List("move Pippo 1, 2")
     val refOutputs = List("Pippo rolls 1, 2. Pippo moves from 60 to 63. Pippo Wins!!")
@@ -70,12 +70,15 @@ class MainTest extends AnyFunSuite {
     assert(output.contains("Pippo moves from"))
   }
 
-  test("When player lands on space 6, (s)he advances to space 12") {
-    val gameStat = GameState(Map(("Pippo" -> 4)))
+  test("When player lands on space 6, he or she advances to space 12") {
+    val gameState = GameState(Map(("Pippo" -> 4)))
     val inputs = List("move Pippo 1, 1")
     val refOutputs = List("Pippo rolls 1, 1. Pippo moves from 4 to The Bridge. Pippo jumps to 12")
+    assert(getScript(inputs, gameState) == refOutputs)
   }
 
+  // test("Player doubles move if he or she lands on The Goose") {
+  // }
   // test("Cannot add player once the game has started")
   // test("Players must take turns in correct sequence")
 }

@@ -38,9 +38,7 @@ object Main {
             else die1String.toInt
           val die2 = die2String.toInt
           
-          if (die1 < 1 || die1 > 6 || die2 < 1 || die2 > 6)
-            gameState.setStatus("dice must be have value from 1 to 6")
-          else gameState.movePlayer(name, die1, die2)
+          gameState.movePlayer(name, die1, die2)
         }
         case Array("move", name) => {
           val random = Random(System.nanoTime())

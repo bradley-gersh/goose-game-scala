@@ -18,26 +18,30 @@ class GameState(val players: Map[String, Int], val status: String = "") {
   }
   // check order of players? last player, next player?
   def movePlayer(name: String, die1: Int, die2: Int): GameState = {
-    players.get(name) match {
-      case Some(square) => {
-        val newSquare = square + die1 + die2
-        val newStatus = new StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (square == 0) "Start" else square} to ")
+    if (die1 < 1 || die1 > 6 || die2 < 1 || die2 > 6)
+      setStatus("dice must be have value from 1 to 6")
+    else {
+      players.get(name) match {
+        case Some(square) => {
+          val newSquare = square + die1 + die2
+          val newStatus = new StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (square == 0) "Start" else square} to ")
 
-        newSquare match {
-          case LAST_SQUARE => GameState(players + (name -> newSquare), newStatus.append(s"$LAST_SQUARE. $name Wins!!").toString)
-          case BRIDGE => GameState(players + (name -> BRIDGE_END), newStatus.append(s"The Bridge. $name jumps to $BRIDGE_END").toString)
-          case square if square > LAST_SQUARE => {
-            val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
-            GameState(players + (name -> bounceTo), newStatus.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").toString)
+          newSquare match {
+            case LAST_SQUARE => GameState(players + (name -> newSquare), newStatus.append(s"$LAST_SQUARE. $name Wins!!").toString)
+            case BRIDGE => GameState(players + (name -> BRIDGE_END), newStatus.append(s"The Bridge. $name jumps to $BRIDGE_END").toString)
+            case square if square > LAST_SQUARE => {
+              val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
+              GameState(players + (name -> bounceTo), newStatus.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").toString)
+            }
+            case square if GOOSE_SQUARES(square) => {
+              val doubleTo = newSquare + die1 + die2
+              GameState(players + (name -> doubleTo), newStatus.append(s"$newSquare, The Goose. $name moves again and goes to $doubleTo").toString)
+            }
+            case _ => GameState(players + (name -> newSquare), newStatus.append(s"$newSquare").toString)
           }
-          case square if GOOSE_SQUARES(square) => {
-            val doubleTo = newSquare + die1 + die2
-            GameState(players + (name -> doubleTo), newStatus.append(s"$newSquare, The Goose. $name moves again and goes to $doubleTo").toString)
-          }
-          case _ => GameState(players + (name -> newSquare), newStatus.append(s"$newSquare").toString)
         }
+        case None => GameState(players, s"$name: unrecognized player")
       }
-      case None => GameState(players, s"$name: unrecognized player")
     }
   }
   

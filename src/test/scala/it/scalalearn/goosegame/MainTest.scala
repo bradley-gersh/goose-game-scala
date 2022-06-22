@@ -149,6 +149,4 @@ class MainTest extends AnyFunSuite {
     val refOutputs = List("Pippo rolls 2, 3. Pippo moves from 4 to 9, The Goose. On 9 there is Pluto, who returns to 4. Pippo moves again and goes to 14, The Goose. Pippo moves again and goes to 19")
     assert(getScript(inputs, gameState) == refOutputs)
   }
-  // test("Cannot add player once the game has started")
-  // test("Players must take turns in correct sequence")
 }

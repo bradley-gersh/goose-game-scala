@@ -95,7 +95,20 @@ class MainTest extends AnyFunSuite {
       val refOutputs = List(s"Pippo rolls $die1, $die2. Pippo moves from ${goose - sum} to $goose, The Goose. Pippo moves again and goes to ${goose + sum}")
       assert(getScript(inputs, gameState) == refOutputs)
     })
+  }
 
+  test("Player can do multiple jumps from a Goose square") {
+    val gameState = GameState(Map(("Pippo" -> 10)))
+    val inputs = List("move Pippo 2, 2")
+    val refOutputs = List("Pippo rolls 2, 2. Pippo moves from 10 to 14, The Goose. Pippo moves again and goes to 18, The Goose. Pippo moves again and goes to 22")
+    assert(getScript(inputs, gameState) == refOutputs)
+  }
+
+  test("When one player lands on another's square, the latter is sent back to the first player's previous square") {
+    val gameState = GameState(Map(("Pippo" -> 15), ("Pluto" -> 17)))
+    val inputs = List("move Pippo 1, 1")
+    val refOutputs = List("Pippo rolls 1, 1. Pippo moves from 15 to 17. On 17 there is Pluto, who returns to 15")
+    assert(getScript(inputs, gameState) == refOutputs)
   }
   // test("Cannot add player once the game has started")
   // test("Players must take turns in correct sequence")

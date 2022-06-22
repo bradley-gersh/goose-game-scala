@@ -38,6 +38,7 @@ class GameState(val players: Map[String, Int], val status: String = "") {
 
 object GameState {
   def apply() = new GameState(Map[String, Int]())
+  def apply(players: String*) = new GameState(players.foldLeft(Map[String, Int]())((acc, player) => acc + (player -> 0)))
   def apply(players: Map[String, Int]) = new GameState(players)
   def apply(players: Map[String, Int], status: String) = new GameState(players, status) 
 }

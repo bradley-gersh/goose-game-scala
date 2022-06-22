@@ -1,11 +1,13 @@
+# mac
 .DS_Store
 
+# metals
 .bloop
-.bsp/
 .idea
 .metals
 .vscode
 
-# sbt files produced at build
+# sbt
 project/**
-target
+.bsp
+target/

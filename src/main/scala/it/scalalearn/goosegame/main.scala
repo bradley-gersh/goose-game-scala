@@ -1,5 +1,6 @@
 package it.scalalearn.goosegame
 
+import scala.annotation.tailrec
 import scala.io.StdIn.readLine
 import scala.util.Random
 object Main {
@@ -17,6 +18,7 @@ object Main {
     |
     |""".stripMargin
 
+  @tailrec
   def cli(oldGameState: Map[String, Int]): Unit = {
     Option(readLine("> ")) match {
       case Some("") | None => println("goodbye\n")

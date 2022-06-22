@@ -91,7 +91,7 @@ class MainTest extends AnyFunSuite {
 
   test("Squares 5, 9, 14, 18, 23, 27 are all Goose squares") {
     val die1 = 1
-    val die2 = 3
+    val die2 = 2
     val sum = die1 + die2
 
     List(5, 9, 14, 18, 23, 27).foreach(goose => {

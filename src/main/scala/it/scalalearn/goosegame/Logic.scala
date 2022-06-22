@@ -1,5 +1,6 @@
 package it.scalalearn.goosegame
 
+import scala.annotation.tailrec
 object Logic {
   final val LAST_SQUARE = 63
   final val BRIDGE = 6
@@ -16,31 +17,34 @@ object Logic {
   }
 
   // check order of players? last player, next player?
-  def movePlayer(gameState: Map[String, Int], name: String, die1: Int, die2: Int): Either[String, (Map[String, Int], String)]= {
-    if (die1 < 1 || die1 > 6 || die2 < 1 || die2 > 6)
-      Left("dice must be have value from 1 to 6")
-    else {
-      gameState.get(name) match {
-        case Some(square) => {
-          val newSquare = square + die1 + die2
-          val status = new StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (square == 0) "Start" else square} to ")
-
-          newSquare match {
-            case LAST_SQUARE => Right(gameState + (name -> newSquare), status.append(s"$LAST_SQUARE. $name Wins!!").toString)
-            case BRIDGE => Right(gameState+ (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").toString)
-            case square if square > LAST_SQUARE => {
-              val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
-              Right(gameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").toString)
-            }
-            case square if GOOSE_SQUARES(square) => {
-              val doubleTo = newSquare + die1 + die2
-              Right(gameState + (name -> doubleTo), status.append(s"$newSquare, The Goose. $name moves again and goes to $doubleTo").toString)
-            }
-            case _ => Right(gameState + (name -> newSquare), status.append(s"$newSquare").toString)
-          }
+  def movePlayer(oldGameState: Map[String, Int], name: String, die1: Int, die2: Int): Either[String, (Map[String, Int], String)] = {
+    for {
+      die1 <- validateDie(die1)
+      die2 <- validateDie(die2)
+      oldSquare <- oldGameState.get(name).toRight(s"$name: unrecognized player")
+    } yield {
+      val status = new StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
+      
+      @tailrec
+      def advance(gameState: Map[String, Int], square: Int, status: StringBuilder): (Map[String, Int], StringBuilder) = (square + die1 + die2) match {
+        case LAST_SQUARE => (gameState + (name -> LAST_SQUARE), status.append(s"$LAST_SQUARE. $name Wins!!"))
+        case BRIDGE => (gameState + (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END"))
+        case newSquare if newSquare > LAST_SQUARE => {
+          val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
+          (gameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo"))
         }
-        case None => Left(s"$name: unrecognized player")
+        case newSquare if GOOSE_SQUARES(newSquare) => {
+          advance(gameState + (name -> (newSquare + die1 + die2)), newSquare, status.append(s"$newSquare, The Goose. $name moves again and goes to "))
+        }
+        case newSquare => (gameState + (name -> newSquare), status.append(s"$newSquare"))
       }
+
+      val (newGameState, newStatus) = advance(oldGameState, oldSquare, status)
+
+      (newGameState, newStatus.toString)
     }
   }
+
+  def validateDie(die: Int): Either[String, Int] =
+    if (die >= 1 && die <= 6) Right(die) else Left("dice must be have value from 1 to 6")
 }

@@ -20,7 +20,7 @@ object Logic {
 
   def movePlayer(oldGameState: Map[String, Int], name: String, die1: Int, die2: Int): Either[String, (Map[String, Int], String)] = {
     for {
-      dice <- validateDie(die1, die2)
+      dice <- validateDice(die1, die2)
       oldSquare <- oldGameState.get(name).toRight(s"$name: unrecognized player")
     } yield {
       val Seq(die1, die2) = dice
@@ -66,6 +66,6 @@ object Logic {
     }
   }
 
-  def validateDie(dice: Int*): Either[String, Seq[Int]] =
+  def validateDice(dice: Int*): Either[String, Seq[Int]] =
     if (dice.forall(die => die >= 1 && die <= 6)) Right(dice) else Left("Dice must have value from 1 to 6")
 }

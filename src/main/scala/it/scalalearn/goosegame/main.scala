@@ -2,11 +2,10 @@ package it.scalalearn.goosegame
 
 import scala.io.StdIn.readLine
 import scala.util.Random
-
 object Main {
   def main(args: Array[String]): Unit = {
     println(banner)
-    cli(GameState())
+    cli(Map[String, Int]())
   }
 
   val banner = """
@@ -18,36 +17,42 @@ object Main {
     |
     |""".stripMargin
 
-  def cli(gameState: GameState): Unit = {
+  def cli(oldGameState: Map[String, Int]): Unit = {
     Option(readLine("> ")) match {
       case Some("") | None => println("goodbye\n")
-      case Some(input) => val newGameState = processInput(input, gameState)
-        println(newGameState.status + "\n")
-        cli(newGameState)
+      case Some(input) => 
+        processInput(input, oldGameState) match {
+          case Left(error) =>
+            println(error + "\n")
+            cli(oldGameState)
+          case Right(newGameState, success) =>
+            println(success + "\n")
+            cli(newGameState)
+        }
     }
   }
 
-  def processInput(input: String, gameState: GameState): GameState = {
+  def processInput(input: String, gameState: Map[String, Int]): Either[String, (Map[String, Int], String)] = {
     if (input.isEmpty) {
-      gameState.setStatus("no input")
+      Left("no input")
     } else input.split(" ") match {
-        case Array("add", "player", newName) => gameState.addPlayer(newName)
+        case Array("add", "player", newName) => Logic.addPlayer(gameState, newName)
         case Array("move", name, die1String, die2String) => {
           val die1 = if (die1String.last == ',')
               die1String.substring(0, die1String.length() - 1).toInt
             else die1String.toInt
           val die2 = die2String.toInt
           
-          gameState.movePlayer(name, die1, die2)
+          Logic.movePlayer(gameState, name, die1, die2)
         }
         case Array("move", name) => {
           val random = Random(System.nanoTime())
           val die1 = random.nextInt(6) + 1
           val die2 = random.nextInt(6) + 1
           
-          gameState.movePlayer(name, die1, die2)
+          Logic.movePlayer(gameState, name, die1, die2)
         }
-        case _ => gameState.setStatus("unrecognized command")
+        case _ => Left("unrecognized command")
       }
   }
 }

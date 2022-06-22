@@ -32,11 +32,11 @@ class MainTest extends AnyFunSuite {
 
   test("Players can move by specifying dice") {
     val gameState = GameState("Pippo", "Pluto")
-    val inputs = List("move Pippo 4, 2", "move Pluto 2, 2", "move Pippo 2, 3")
+    val inputs = List("move Pippo 4, 3", "move Pluto 2, 2", "move Pippo 2, 3")
     val refOutputs = List(
-      "Pippo rolls 4, 2. Pippo moves from Start to 6",
+      "Pippo rolls 4, 3. Pippo moves from Start to 7",
       "Pluto rolls 2, 2. Pluto moves from Start to 4",
-      "Pippo rolls 2, 3. Pippo moves from 6 to 11"
+      "Pippo rolls 2, 3. Pippo moves from 7 to 12"
     )
     assert(getScript(inputs, gameState) == refOutputs)
   }

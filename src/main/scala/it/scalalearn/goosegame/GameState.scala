@@ -2,6 +2,8 @@ package it.scalalearn.goosegame
 
 class GameState(val players: Map[String, Int], val status: String = "") {
   final val LAST_SQUARE = 63
+  final val BRIDGE = 6
+  final val BRIDGE_END = 12
 
   def getPlayers: Map[String, Int] = players
 
@@ -22,6 +24,7 @@ class GameState(val players: Map[String, Int], val status: String = "") {
 
         newSquare match {
           case LAST_SQUARE => GameState(players + (name -> newSquare), newStatus.append(s"$LAST_SQUARE. $name Wins!!").toString)
+          case BRIDGE => GameState(players + (name -> BRIDGE_END), newStatus.append(s"The Bridge. $name jumps to $BRIDGE_END").toString)
           case square if square > LAST_SQUARE => {
             val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
             GameState(players + (name -> bounceTo), newStatus.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").toString)

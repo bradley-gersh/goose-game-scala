@@ -19,13 +19,15 @@ class GameState(val players: Map[String, Int], val status: String = "") {
       case Some(square) => {
         val newSquare = square + die1 + die2
         val newStatus = new StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (square == 0) "Start" else square} to ")
-        if (newSquare == LAST_SQUARE)
-          GameState(players + (name -> newSquare), newStatus.append(s"$LAST_SQUARE. $name Wins!!").toString)
-        else if (newSquare > LAST_SQUARE) {
-          val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
-          GameState(players + (name -> bounceTo), newStatus.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").toString)
-        } else
-          GameState(players + (name -> newSquare), newStatus.append(s"$newSquare").toString)
+
+        newSquare match {
+          case LAST_SQUARE => GameState(players + (name -> newSquare), newStatus.append(s"$LAST_SQUARE. $name Wins!!").toString)
+          case square if square > LAST_SQUARE => {
+            val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
+            GameState(players + (name -> bounceTo), newStatus.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").toString)
+          }
+          case _ => GameState(players + (name -> newSquare), newStatus.append(s"$newSquare").toString)
+        }
       }
       case None => GameState(players, s"$name: unrecognized player")
     }

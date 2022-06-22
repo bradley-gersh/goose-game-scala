@@ -1,6 +1,8 @@
 package it.scalalearn.goosegame
 
 import scala.annotation.tailrec
+import scala.collection.mutable
+
 object Logic {
   final val LAST_SQUARE = 63
   final val BRIDGE = 6
@@ -23,12 +25,12 @@ object Logic {
       die2 <- validateDie(die2)
       oldSquare <- oldGameState.get(name).toRight(s"$name: unrecognized player")
     } yield {
-      val status = new StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
+      val status = new mutable.StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
       
       @tailrec
-      def advance(gameState: Map[String, Int], square: Int, status: StringBuilder): (Map[String, Int], StringBuilder) = {
+      def advance(gameState: Map[String, Int], square: Int, status: mutable.StringBuilder): (Map[String, Int], mutable.StringBuilder) = {
         square + die1 + die2 match {
-          case LAST_SQUARE => (gameState + (name -> LAST_SQUARE), status.append(s"$LAST_SQUARE. $name Wins!!"))
+          case LAST_SQUARE => (Map[String, Int](), status.append(s"$LAST_SQUARE. $name Wins!!"))
 
           case BRIDGE =>
             val (prankGameState, prankStatus) = checkPrank(gameState, BRIDGE_END)
@@ -51,10 +53,12 @@ object Logic {
         }
       }
 
-      def checkPrank(gameState: Map[String, Int], newSquare: Int): (Map[String, Int], StringBuilder) = {
-        val bumpNames = gameState.filter((otherName, otherSquare) => otherName != name && otherSquare == newSquare).keys
-        bumpNames.foldLeft((gameState, StringBuilder()))
-                          ((state, player) => (state._1 + (player -> oldSquare), state._2.append(s". On $newSquare there is $player, who returns to $oldSquare")))
+      def checkPrank(gameState: Map[String, Int], newSquare: Int): (Map[String, Int], mutable.StringBuilder) = {
+        val bumpNames = gameState.filter({
+          case (otherName: String, otherSquare: Int) => otherName != name && otherSquare == newSquare
+        }).keys
+        bumpNames.foldLeft((gameState, new mutable.StringBuilder()))((state, player) =>
+          (state._1 + (player -> oldSquare), state._2.append(s". On $newSquare there is $player, who returns to $oldSquare")))
       }
 
       val (newGameState, newStatus) = advance(oldGameState, oldSquare, status)
@@ -64,5 +68,5 @@ object Logic {
   }
 
   def validateDie(die: Int): Either[String, Int] =
-    if (die >= 1 && die <= 6) Right(die) else Left("dice must be have value from 1 to 6")
+    if (die >= 1 && die <= 6) Right(die) else Left("Dice must have value from 1 to 6")
 }

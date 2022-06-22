@@ -3,13 +3,14 @@ package it.scalalearn.goosegame
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
 import scala.util.Random
+
 object Main {
   def main(args: Array[String]): Unit = {
     println(banner)
     cli(Map[String, Int]())
   }
 
-  val banner = """
+  private val banner: String = """
     |  Goose Game
     |
     |  To add player Pippo: "add player Pippo"
@@ -27,7 +28,7 @@ object Main {
           case Left(error) =>
             println(error + "\n")
             cli(oldGameState)
-          case Right(newGameState, success) =>
+          case Right((newGameState, success)) =>
             println(success + "\n")
             cli(newGameState)
         }
@@ -39,21 +40,22 @@ object Main {
       Left("no input")
     } else input.split(" ") match {
         case Array("add", "player", newName) => Logic.addPlayer(gameState, newName)
-        case Array("move", name, die1String, die2String) => {
-          val die1 = if (die1String.last == ',')
+        case Array("move", name, die1String, die2String) =>
+          val die1 =
+            if (die1String.last == ',')
               die1String.substring(0, die1String.length() - 1).toInt
             else die1String.toInt
           val die2 = die2String.toInt
           
           Logic.movePlayer(gameState, name, die1, die2)
-        }
-        case Array("move", name) => {
-          val random = Random(System.nanoTime())
+
+        case Array("move", name) =>
+          val random = new Random(System.nanoTime())
           val die1 = random.nextInt(6) + 1
           val die2 = random.nextInt(6) + 1
           
           Logic.movePlayer(gameState, name, die1, die2)
-        }
+
         case _ => Left("unrecognized command")
       }
   }

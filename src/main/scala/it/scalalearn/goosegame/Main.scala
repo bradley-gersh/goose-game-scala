@@ -42,8 +42,7 @@ object Main {
         case Array("add", "player", newName) => Logic.addPlayer(gameState, newName)
         case Array("move", name, die1String, die2String) =>
           val die1 =
-            if (die1String.last == ',')
-              die1String.substring(0, die1String.length() - 1).toInt
+            if (die1String.last == ',') die1String.init.toInt
             else die1String.toInt
           val die2 = die2String.toInt
           

@@ -52,8 +52,16 @@ class MainTest extends AnyFunSuite {
     val gameState = GameState(Map(("Pippo" -> 60)))
     val inputs = List("move Pippo 3, 2")
     val refOutputs = List("Pippo rolls 3, 2. Pippo moves from 60 to 63. Pippo bounces! Pippo returns to 61")
+    assert(getScript(inputs, gameState) == refOutputs)
   }
 
+  test("Game rolls dice automatically") {
+    val gameState = GameState(Map(("Pippo" -> 4)))
+    val inputs = List("move Pippo")
+    val List(output) = getScript(inputs, gameState)
+    assert(output.contains("Pippo rolls"))
+    assert(output.contains("Pippo moves from"))
+  }
   // test("Dice cannot be outside range 1-6")
   // test("Cannot add player once the game has started")
   // test("Players must take turns in correct sequence")

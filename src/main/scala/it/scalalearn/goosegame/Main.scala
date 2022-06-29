@@ -40,6 +40,7 @@ object Main {
       Left("no input")
     } else input.split(" ") match {
         case Array("add", "player", newName) => Logic.addPlayer(gameState, newName)
+
         case Array("move", name, die1String, die2String) =>
           val (die1, die2) = diceStringsToInt(die1String, die2String)
           Logic.movePlayer(gameState, name, die1, die2)

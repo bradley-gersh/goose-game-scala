@@ -25,45 +25,48 @@ object Logic {
     } yield {
       val Seq(die1, die2) = dice
       val status = new mutable.StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
-      
-      @tailrec
-      def advance(gameState: Map[String, Int], square: Int, status: mutable.StringBuilder): (Map[String, Int], mutable.StringBuilder) = {
-        square + die1 + die2 match {
-          case LAST_SQUARE => (Map[String, Int](), status.append(s"$LAST_SQUARE. $name Wins!!"))
-
-          case BRIDGE =>
-            val (prankGameState, prankStatus) = checkPrank(gameState, BRIDGE_END)
-            (prankGameState + (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").append(prankStatus))
-
-          case newSquare if newSquare > LAST_SQUARE =>
-            val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
-            val (prankGameState, prankStatus) = checkPrank(gameState, bounceTo)
-            (prankGameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(prankStatus))
-
-          case newSquare if GOOSE_SQUARES(newSquare) =>
-            val (prankGameState, prankStatus) = checkPrank(gameState, newSquare)
-            advance(prankGameState + (name -> (newSquare + die1 + die2)),
-                    newSquare,
-                    status.append(s"$newSquare, The Goose").append(prankStatus).append(s". $name moves again and goes to "))
-          
-          case newSquare =>
-            val (prankGameState, prankStatus) = checkPrank(gameState, newSquare)
-            (prankGameState + (name -> newSquare), status.append(s"$newSquare").append(prankStatus))
-        }
-      }
-
-      def checkPrank(gameState: Map[String, Int], newSquare: Int): (Map[String, Int], mutable.StringBuilder) = {
-        val bumpNames = gameState.filter({
-          case (otherName: String, otherSquare: Int) => otherName != name && otherSquare == newSquare
-        }).keys
-        bumpNames.foldLeft((gameState, new mutable.StringBuilder()))((state, player) =>
-          (state._1 + (player -> oldSquare), state._2.append(s". On $newSquare there is $player, who returns to $oldSquare")))
-      }
-
-      val (newGameState, newStatus) = advance(oldGameState, oldSquare, status)
+      val (newGameState, newStatus) = advance(oldGameState, name, oldSquare, die1, die2, status)
 
       (newGameState, newStatus.toString)
     }
+  }
+
+  @tailrec
+  def advance(gameState: Map[String, Int], name: String, oldSquare: Int, die1: Int, die2: Int, status: mutable.StringBuilder): (Map[String, Int], mutable.StringBuilder) = {
+    oldSquare + die1 + die2 match {
+      case LAST_SQUARE => (Map[String, Int](), status.append(s"$LAST_SQUARE. $name Wins!!"))
+
+      case BRIDGE =>
+        val (prankGameState, prankStatus) = checkPrank(gameState, name, BRIDGE_END, oldSquare)
+        (prankGameState + (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").append(prankStatus))
+
+      case newSquare if newSquare > LAST_SQUARE =>
+        val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
+        val (prankGameState, prankStatus) = checkPrank(gameState, name, bounceTo, oldSquare)
+        (prankGameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(prankStatus))
+
+      case newSquare if GOOSE_SQUARES(newSquare) =>
+        val (prankGameState, prankStatus) = checkPrank(gameState, name, newSquare, oldSquare)
+        advance(prankGameState + (name -> (newSquare + die1 + die2)),
+          name,
+          newSquare,
+          die1,
+          die2,
+          status.append(s"$newSquare, The Goose").append(prankStatus).append(s". $name moves again and goes to "))
+
+      case newSquare =>
+        val (prankGameState, prankStatus) = checkPrank(gameState, name, newSquare, oldSquare)
+        (prankGameState + (name -> newSquare), status.append(s"$newSquare").append(prankStatus))
+    }
+  }
+
+  def checkPrank(gameState: Map[String, Int], name: String, newSquare: Int, oldSquare: Int): (Map[String, Int], mutable.StringBuilder) = {
+    val bumpNames = gameState.filter({
+      case (otherName: String, otherSquare: Int) => otherName != name && otherSquare == newSquare
+    }).keys
+
+    bumpNames.foldLeft((gameState, new mutable.StringBuilder()))((state, player) =>
+      (state._1 + (player -> oldSquare), state._2.append(s". On $newSquare there is $player, who returns to $oldSquare")))
   }
 
   def validateDice(dice: Int*): Either[String, Seq[Int]] =

@@ -23,7 +23,7 @@ object Logic {
       validatedDice <- validateDice(dice)
       oldSquare <- oldGameState.get(name).toRight(s"$name: unrecognized player")
     } yield {
-      val status = new mutable.StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
+      val status = new mutable.StringBuilder(s"$name rolls ${validatedDice.mkString(", ")}. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
       val (newGameState, newStatus) = advance(oldGameState, name, oldSquare, oldSquare, dice, status)
 
       (newGameState, newStatus.toString)
@@ -32,7 +32,7 @@ object Logic {
 
   @tailrec
   def advance(gameState: Map[String, Int], name: String, oldSquare: Int, startSquare: Int, dice: List[Int], status: mutable.StringBuilder): (Map[String, Int], mutable.StringBuilder) = {
-    assert(validateDice(dice*).isRight)
+    assert(validateDice(dice).isRight)
     assert(gameState.contains(name))
 
     oldSquare + dice.sum match {
@@ -48,8 +48,8 @@ object Logic {
         (prankGameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(prankStatus))
 
       case newSquare if GOOSE_SQUARES(newSquare) =>
-        val (prankGameState, prankStatus) = checkPrank(gameState, newSquare)
-        advance(prankGameState + (name -> (newSquare + die1 + die2)),
+        val (prankGameState, prankStatus) = checkPrank(gameState, name, newSquare, startSquare)
+        advance(prankGameState + (name -> (newSquare + dice.sum)),
           name,
           newSquare,
           startSquare,
@@ -57,7 +57,7 @@ object Logic {
           status.append(s"$newSquare, The Goose").append(prankStatus).append(s". $name moves again and goes to "))
 
       case newSquare =>
-        val (prankGameState, prankStatus) = checkPrank(gameState, newSquare)
+        val (prankGameState, prankStatus) = checkPrank(gameState, name, newSquare, startSquare)
         (prankGameState + (name -> newSquare), status.append(s"$newSquare").append(prankStatus))
     }
   }

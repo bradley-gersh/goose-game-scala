@@ -41,20 +41,20 @@ object Main {
   }
 
   def processInput(input: String, gameState: Map[String, Int]): Either[String, (Map[String, Int], String)] = {
-    if (input.isEmpty) {
-      Left("no input")
-    } else input match {
-        case ADD_PLAYER(newName) => Logic.addPlayer(gameState, newName)
+    input match {
+      case ADD_PLAYER(newName) => Logic.addPlayer(gameState, newName)
 
-        case MOVE_PLAYER_CHOSEN_DICE(name, die1String, die2String) =>
-          val (die1, die2) = (die1String.toInt, die2String.toInt)
-          Logic.movePlayer(gameState, name, die1, die2)
+      case MOVE_PLAYER_CHOSEN_DICE(name, die1String, die2String) =>
+        val (die1, die2) = (die1String.toInt, die2String.toInt)
+        Logic.movePlayer(gameState, name, die1, die2)
 
-        case MOVE_PLAYER_RANDOM_DICE(name) =>
-          val (die1, die2) = (random.nextInt(6) + 1, random.nextInt(6) + 1)
-          Logic.movePlayer(gameState, name, die1, die2)
+      case MOVE_PLAYER_RANDOM_DICE(name) =>
+        val (die1, die2) = (random.nextInt(6) + 1, random.nextInt(6) + 1)
+        Logic.movePlayer(gameState, name, die1, die2)
 
-        case _ => Left("unrecognized command")
-      }
+      case "" => Left("no input")
+
+      case _ => Left("unrecognized command")
+    }
   }
 }

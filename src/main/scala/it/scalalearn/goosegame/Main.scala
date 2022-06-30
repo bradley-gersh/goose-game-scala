@@ -24,33 +24,34 @@ object Main {
   }
 
   @tailrec
-  def cli(oldGameState: Map[String, Int]): Unit = {
+  def cli(squaresByPlayerNames: Map[String, Int]): Unit = {
     Option(readLine("> ")) match {
       case Some("") | None => println("goodbye\n")
 
       case Some(input) => 
-        processInput(input, oldGameState) match {
+        processInput(squaresByPlayerNames, input) match {
           case Left(error) =>
             println(error + "\n")
-            cli(oldGameState)
-          case Right((newGameState, success)) =>
+            cli(squaresByPlayerNames)
+
+          case Right((updatedSquaresByPlayerNames, success)) =>
             println(success + "\n")
-            cli(newGameState)
+            cli(updatedSquaresByPlayerNames)
         }
     }
   }
 
-  def processInput(input: String, gameState: Map[String, Int]): Either[String, (Map[String, Int], String)] = {
+  def processInput(squaresByPlayerNames: Map[String, Int], input: String): Either[String, (Map[String, Int], String)] = {
     input match {
-      case ADD_PLAYER(newName) => Logic.addPlayer(gameState, newName)
+      case ADD_PLAYER(newName) => Logic.addPlayer(squaresByPlayerNames, newName)
 
       case MOVE_PLAYER_CHOSEN_DICE(name, die1String, die2String) =>
         val dice = List(die1String.toInt, die2String.toInt)
-        Logic.movePlayer(gameState, name, dice)
+        Logic.movePlayer(squaresByPlayerNames, name, dice)
 
       case MOVE_PLAYER_RANDOM_DICE(name) =>
         val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
-        Logic.movePlayer(gameState, name, dice)
+        Logic.movePlayer(squaresByPlayerNames, name, dice)
 
       case "" => Left("no input")
 

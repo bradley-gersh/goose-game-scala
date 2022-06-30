@@ -9,46 +9,46 @@ object Logic {
   final val BRIDGE_END = 12
   final val GOOSE_SQUARES = Set(5, 9, 14, 18, 23, 27)
 
-  def addPlayer(gameState: Map[String, Int], newPlayer: String): Either[String, (Map[String, Int], String)] = {
-    if (gameState.contains(newPlayer)) {
+  def addPlayer(squaresByPlayerNames: Map[String, Int], newPlayer: String): Either[String, (Map[String, Int], String)] = {
+    if (squaresByPlayerNames.contains(newPlayer)) {
       Left(s"$newPlayer: already existing player")
     } else {
-      val newGameState = gameState + (newPlayer -> 0)
-      Right(newGameState, s"players: ${newGameState.keys.mkString(", ")}")
+      val updatedSquaresByPlayerNames = squaresByPlayerNames + (newPlayer -> 0)
+      Right(updatedSquaresByPlayerNames, s"players: ${updatedSquaresByPlayerNames.keys.mkString(", ")}")
     }
   }
 
-  def movePlayer(oldGameState: Map[String, Int], name: String, dice: List[Int]): Either[String, (Map[String, Int], String)] = {
+  def movePlayer(squaresByPlayerNames: Map[String, Int], name: String, dice: List[Int]): Either[String, (Map[String, Int], String)] = {
     for {
       validatedDice <- validateDice(dice)
-      oldSquare <- oldGameState.get(name).toRight(s"$name: unrecognized player")
+      oldSquare <- squaresByPlayerNames.get(name).toRight(s"$name: unrecognized player")
     } yield {
       val status = new mutable.StringBuilder(s"$name rolls ${validatedDice.mkString(", ")}. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
-      val (newGameState, newStatus) = advance(oldGameState, name, oldSquare, oldSquare, dice, status)
+      val (updatedSquaresByPlayerNames, newStatus) = advance(squaresByPlayerNames, name, oldSquare, oldSquare, dice, status)
 
-      (newGameState, newStatus.toString)
+      (updatedSquaresByPlayerNames, newStatus.toString)
     }
   }
 
   @tailrec
-  def advance(gameState: Map[String, Int], name: String, oldSquare: Int, startSquare: Int, dice: List[Int], status: mutable.StringBuilder): (Map[String, Int], mutable.StringBuilder) = {
+  def advance(squaresByPlayerNames: Map[String, Int], name: String, oldSquare: Int, startSquare: Int, dice: List[Int], status: mutable.StringBuilder): (Map[String, Int], mutable.StringBuilder) = {
     assert(validateDice(dice).isRight)
-    assert(gameState.contains(name))
+    assert(squaresByPlayerNames.contains(name))
 
     oldSquare + dice.sum match {
       case LAST_SQUARE => (Map[String, Int](), status.append(s"$LAST_SQUARE. $name Wins!!"))
 
       case BRIDGE =>
-        val (prankGameState, prankStatus) = checkPrank(gameState, name, BRIDGE_END, startSquare)
+        val (prankGameState, prankStatus) = checkPrank(squaresByPlayerNames, name, BRIDGE_END, startSquare)
         (prankGameState + (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").append(prankStatus))
 
       case newSquare if newSquare > LAST_SQUARE =>
         val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
-        val (prankGameState, prankStatus) = checkPrank(gameState, name, bounceTo, startSquare)
+        val (prankGameState, prankStatus) = checkPrank(squaresByPlayerNames, name, bounceTo, startSquare)
         (prankGameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(prankStatus))
 
       case newSquare if GOOSE_SQUARES(newSquare) =>
-        val (prankGameState, prankStatus) = checkPrank(gameState, name, newSquare, startSquare)
+        val (prankGameState, prankStatus) = checkPrank(squaresByPlayerNames, name, newSquare, startSquare)
         advance(prankGameState + (name -> (newSquare + dice.sum)),
           name,
           newSquare,
@@ -57,19 +57,19 @@ object Logic {
           status.append(s"$newSquare, The Goose").append(prankStatus).append(s". $name moves again and goes to "))
 
       case newSquare =>
-        val (prankGameState, prankStatus) = checkPrank(gameState, name, newSquare, startSquare)
+        val (prankGameState, prankStatus) = checkPrank(squaresByPlayerNames, name, newSquare, startSquare)
         (prankGameState + (name -> newSquare), status.append(s"$newSquare").append(prankStatus))
     }
   }
 
-  def checkPrank(gameState: Map[String, Int], name: String, newSquare: Int, startSquare: Int): (Map[String, Int], mutable.StringBuilder) = {
-    assert(gameState.contains(name))
+  def checkPrank(squaresByPlayerNames: Map[String, Int], name: String, newSquare: Int, startSquare: Int): (Map[String, Int], mutable.StringBuilder) = {
+    assert(squaresByPlayerNames.contains(name))
 
-    val bumpNames = gameState.filter({
+    val bumpNames = squaresByPlayerNames.filter({
       case (otherName: String, otherSquare: Int) => otherName != name && otherSquare == newSquare
     }).keys
 
-    bumpNames.foldLeft((gameState, new mutable.StringBuilder()))((state, player) =>
+    bumpNames.foldLeft((squaresByPlayerNames, new mutable.StringBuilder()))((state, player) =>
       (state._1 + (player -> startSquare), state._2.append(s". On $newSquare there is $player, who returns to $startSquare")))
   }
 

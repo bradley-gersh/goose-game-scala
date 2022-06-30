@@ -39,26 +39,26 @@ object Logic {
       case LAST_SQUARE => (Map[String, Int](), status.append(s"$LAST_SQUARE. $name Wins!!"))
 
       case BRIDGE =>
-        val (prankGameState, prankStatus) = checkPrank(squaresByPlayerNames, name, BRIDGE_END, startSquare)
-        (prankGameState + (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").append(prankStatus))
+        val (squaresByPlayerNamesAfterPrank, statusAfterPrank) = checkPrank(squaresByPlayerNames, name, BRIDGE_END, startSquare)
+        (squaresByPlayerNamesAfterPrank + (name -> BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").append(statusAfterPrank))
 
       case newSquare if newSquare > LAST_SQUARE =>
         val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
-        val (prankGameState, prankStatus) = checkPrank(squaresByPlayerNames, name, bounceTo, startSquare)
-        (prankGameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(prankStatus))
+        val (squaresByPlayerNamesAfterPrank, statusAfterPrank) = checkPrank(squaresByPlayerNames, name, bounceTo, startSquare)
+        (squaresByPlayerNamesAfterPrank + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(statusAfterPrank))
 
       case newSquare if GOOSE_SQUARES(newSquare) =>
-        val (prankGameState, prankStatus) = checkPrank(squaresByPlayerNames, name, newSquare, startSquare)
-        advance(prankGameState + (name -> (newSquare + dice.sum)),
+        val (squaresByPlayerNamesAfterPrank, statusAfterPrank) = checkPrank(squaresByPlayerNames, name, newSquare, startSquare)
+        advance(squaresByPlayerNamesAfterPrank + (name -> (newSquare + dice.sum)),
           name,
           newSquare,
           startSquare,
           dice,
-          status.append(s"$newSquare, The Goose").append(prankStatus).append(s". $name moves again and goes to "))
+          status.append(s"$newSquare, The Goose").append(statusAfterPrank).append(s". $name moves again and goes to "))
 
       case newSquare =>
-        val (prankGameState, prankStatus) = checkPrank(squaresByPlayerNames, name, newSquare, startSquare)
-        (prankGameState + (name -> newSquare), status.append(s"$newSquare").append(prankStatus))
+        val (squaresByPlayerNamesAfterPrank, statusAfterPrank) = checkPrank(squaresByPlayerNames, name, newSquare, startSquare)
+        (squaresByPlayerNamesAfterPrank + (name -> newSquare), status.append(s"$newSquare").append(statusAfterPrank))
     }
   }
 

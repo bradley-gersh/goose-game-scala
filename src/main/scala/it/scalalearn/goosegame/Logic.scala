@@ -18,12 +18,11 @@ object Logic {
     }
   }
 
-  def movePlayer(oldGameState: Map[String, Int], name: String, die1: Int, die2: Int): Either[String, (Map[String, Int], String)] = {
+  def movePlayer(oldGameState: Map[String, Int], name: String, dice: List[Int]): Either[String, (Map[String, Int], String)] = {
     for {
-      dice <- validateDice(die1, die2)
+      validatedDice <- validateDice(dice)
       oldSquare <- oldGameState.get(name).toRight(s"$name: unrecognized player")
     } yield {
-      val Seq(die1, die2) = dice
       val status = new mutable.StringBuilder(s"$name rolls $die1, $die2. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
       val (newGameState, newStatus) = advance(oldGameState, name, oldSquare, oldSquare, dice, status)
 
@@ -32,7 +31,7 @@ object Logic {
   }
 
   @tailrec
-  def advance(gameState: Map[String, Int], name: String, oldSquare: Int, startSquare: Int, dice: Seq[Int], status: mutable.StringBuilder): (Map[String, Int], mutable.StringBuilder) = {
+  def advance(gameState: Map[String, Int], name: String, oldSquare: Int, startSquare: Int, dice: List[Int], status: mutable.StringBuilder): (Map[String, Int], mutable.StringBuilder) = {
     assert(validateDice(dice*).isRight)
     assert(gameState.contains(name))
 
@@ -49,8 +48,8 @@ object Logic {
         (prankGameState + (name -> bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(prankStatus))
 
       case newSquare if GOOSE_SQUARES(newSquare) =>
-        val (prankGameState, prankStatus) = checkPrank(gameState, name, newSquare, startSquare)
-        advance(prankGameState + (name -> (newSquare + dice.sum)),
+        val (prankGameState, prankStatus) = checkPrank(gameState, newSquare)
+        advance(prankGameState + (name -> (newSquare + die1 + die2)),
           name,
           newSquare,
           startSquare,
@@ -58,7 +57,7 @@ object Logic {
           status.append(s"$newSquare, The Goose").append(prankStatus).append(s". $name moves again and goes to "))
 
       case newSquare =>
-        val (prankGameState, prankStatus) = checkPrank(gameState, name, newSquare, startSquare)
+        val (prankGameState, prankStatus) = checkPrank(gameState, newSquare)
         (prankGameState + (name -> newSquare), status.append(s"$newSquare").append(prankStatus))
     }
   }
@@ -74,6 +73,6 @@ object Logic {
       (state._1 + (player -> startSquare), state._2.append(s". On $newSquare there is $player, who returns to $startSquare")))
   }
 
-  def validateDice(dice: Int*): Either[String, Seq[Int]] =
+  def validateDice(dice: List[Int]): Either[String, List[Int]] =
     if (dice.forall(die => die >= 1 && die <= 6)) Right(dice) else Left("Dice must have value from 1 to 6")
 }

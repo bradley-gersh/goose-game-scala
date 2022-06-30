@@ -45,12 +45,12 @@ object Main {
       case ADD_PLAYER(newName) => Logic.addPlayer(gameState, newName)
 
       case MOVE_PLAYER_CHOSEN_DICE(name, die1String, die2String) =>
-        val (die1, die2) = (die1String.toInt, die2String.toInt)
-        Logic.movePlayer(gameState, name, die1, die2)
+        val dice = List(die1String.toInt, die2String.toInt)
+        Logic.movePlayer(gameState, name, dice)
 
       case MOVE_PLAYER_RANDOM_DICE(name) =>
-        val (die1, die2) = (random.nextInt(6) + 1, random.nextInt(6) + 1)
-        Logic.movePlayer(gameState, name, die1, die2)
+        val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
+        Logic.movePlayer(gameState, name, dice)
 
       case "" => Left("no input")
 

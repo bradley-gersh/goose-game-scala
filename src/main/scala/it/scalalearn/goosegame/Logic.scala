@@ -56,8 +56,14 @@ object Logic {
           case (otherName: String, otherSquare: Int) => otherName != name && otherSquare == newSquare
         }).keys
 
-        bumpNames.foldLeft((squaresByPlayerNames, new mutable.StringBuilder()))((state, player) =>
-          (state._1 + (player -> oldSquare), state._2.append(s". On $newSquare there is $player, who returns to $oldSquare")))
+        bumpNames.foldLeft((squaresByPlayerNames, new mutable.StringBuilder()))(
+          (gameState, player) => {
+            val (updatedSquaresByPlayerNames, status) = gameState
+
+            (updatedSquaresByPlayerNames + (player -> oldSquare),
+              status.append(s". On $newSquare there is $player, who returns to $oldSquare"))
+          }
+        )
       }
 
       val (updatedSquaresByPlayerNames, newStatus) = advance(squaresByPlayerNames, oldSquare, status)

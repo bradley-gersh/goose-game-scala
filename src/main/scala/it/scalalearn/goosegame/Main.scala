@@ -9,7 +9,6 @@ object Main {
   private val MOVE_PLAYER_RANDOM_DICE = """\s*(?i)move(?-i)\s+(\w+)""".r
   private val MOVE_PLAYER_CHOSEN_DICE = """\s*(?i)move(?-i)\s+(\w+)\s+(\d+),\s*(\d+)""".r
   private val random = new Random(System.nanoTime())
-
   private val banner: String = """
                                  |  Goose Game
                                  |
@@ -28,6 +27,7 @@ object Main {
   def cli(oldGameState: Map[String, Int]): Unit = {
     Option(readLine("> ")) match {
       case Some("") | None => println("goodbye\n")
+
       case Some(input) => 
         processInput(input, oldGameState) match {
           case Left(error) =>

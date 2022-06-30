@@ -62,15 +62,25 @@ object Logic {
     }
   }
 
-  def checkPrank(squaresByPlayerNames: Map[String, Int], name: String, newSquare: Int, startSquare: Int): (Map[String, Int], mutable.StringBuilder) = {
-    assert(squaresByPlayerNames.contains(name))
+      def checkPrank(squaresByPlayerNames: Map[String, Int], newSquare: Int): (Map[String, Int], mutable.StringBuilder) = {
+        val bumpNames = squaresByPlayerNames.filter({
+          case (otherName: String, otherSquare: Int) => otherName != name && otherSquare == newSquare
+        }).keys
 
-    val bumpNames = squaresByPlayerNames.filter({
-      case (otherName: String, otherSquare: Int) => otherName != name && otherSquare == newSquare
-    }).keys
+        bumpNames.foldLeft((squaresByPlayerNames, new mutable.StringBuilder()))(
+          (gameState, player) => {
+            val (updatedSquaresByPlayerNames, status) = gameState
 
-    bumpNames.foldLeft((squaresByPlayerNames, new mutable.StringBuilder()))((state, player) =>
-      (state._1 + (player -> startSquare), state._2.append(s". On $newSquare there is $player, who returns to $startSquare")))
+            (updatedSquaresByPlayerNames + (player -> oldSquare),
+              status.append(s". On $newSquare there is $player, who returns to $oldSquare"))
+          }
+        )
+      }
+
+      val (updatedSquaresByPlayerNames, newStatus) = advance(squaresByPlayerNames, oldSquare, status)
+
+      (updatedSquaresByPlayerNames, newStatus.toString)
+    }
   }
 
   def validateDice(dice: List[Int]): Either[String, List[Int]] =

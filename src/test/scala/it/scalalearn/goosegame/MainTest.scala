@@ -1,7 +1,8 @@
 package it.scalalearn.goosegame
 
-import it.scalalearn.goosegame.readout.{ErrorReadout, Readout}
+import it.scalalearn.goosegame.errors.GameError
 import it.scalalearn.goosegame.gamestate._
+import it.scalalearn.goosegame.readout.Readout
 
 import scala.collection.mutable.ListBuffer
 import org.scalatest.funsuite.AnyFunSuite
@@ -12,8 +13,8 @@ class MainTest extends AnyFunSuite {
     val transcript = ListBuffer[String]()
     inputs.foldLeft(startGameState)((gameState, input) => {
       Main.processInput(gameState, input) match {
-        case Left(ErrorReadout(message)) =>
-          transcript.append(message)
+        case Left(error) =>
+          transcript.append(error.message)
           gameState
         case Right(newGameState, Readout(message)) =>
           transcript.append(message)

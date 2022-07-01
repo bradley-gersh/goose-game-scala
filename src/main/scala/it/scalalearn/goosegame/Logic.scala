@@ -3,12 +3,13 @@ package it.scalalearn.goosegame
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-import it.scalalearn.goosegame.constants.SpecialSquares._
+import it.scalalearn.goosegame.errors._
 import it.scalalearn.goosegame.gamestate._
+import it.scalalearn.goosegame.gamestate.SpecialSquares._
 import it.scalalearn.goosegame.readout._
 
 object Logic {
-  def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[ErrorReadout, (GameState, Readout)] = {
+  def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, (GameState, Readout)] = {
     for {
       _ <- validateDice(dice)
       oldSquare <- validatePlayer(gameState, name)
@@ -68,9 +69,9 @@ object Logic {
     )
   }
 
-  def validateDice(dice: List[Int]): Either[ErrorReadout, List[Int]] =
-    if (dice.forall(die => die >= 1 && die <= 6)) Right(dice) else Left(ErrorReadout("Dice must have value from 1 to 6"))
+  def validateDice(dice: List[Int]): Either[GameError, List[Int]] =
+    if (dice.forall(die => die >= 1 && die <= 6)) Right(dice) else Left(DiceError)
 
-  def validatePlayer(gameState: GameState, name: String): Either[ErrorReadout, Int] =
-    gameState.getPlayerSquare(name).toRight(ErrorReadout(s"$name: unrecognized player"))
+  def validatePlayer(gameState: GameState, name: String): Either[GameError, Int] =
+    gameState.getPlayerSquare(name).toRight(UnknownPlayerError(name))
 }

@@ -1,5 +1,6 @@
 package it.scalalearn.goosegame
 
+import it.scalalearn.goosegame.errors._
 import it.scalalearn.goosegame.readout._
 import it.scalalearn.goosegame.gamestate._
 
@@ -34,8 +35,8 @@ object Main {
 
       case Some(input) => 
         processInput(gameState, input) match {
-          case Left(errorReadout) =>
-            errorReadout.display()
+          case Left(error) =>
+            error.display()
             cli(gameState)
 
           case Right((newGameState, successReadout)) =>
@@ -45,7 +46,7 @@ object Main {
     }
   }
 
-  def processInput(gameState: GameState, input: String): Either[ErrorReadout, (GameState, Readout)] = {
+  def processInput(gameState: GameState, input: String): Either[GameError, (GameState, Readout)] = {
     input match {
       case ADD_PLAYER(newName) => GameStateChanger.addPlayer(gameState, newName)
 
@@ -57,9 +58,9 @@ object Main {
         val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
         Logic.movePlayer(gameState, name, dice)
 
-      case "" => Left(ErrorReadout("no input"))
+      case "" => Left(NoInputError)
 
-      case _ => Left(ErrorReadout("unrecognized command"))
+      case _ => Left(UnknownInputError)
     }
   }
 }

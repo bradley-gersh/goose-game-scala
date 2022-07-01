@@ -1,4 +1,4 @@
-package it.scalalearn.goosegame.constants
+package it.scalalearn.goosegame.gamestate
 
 object SpecialSquares {
   final val START_SQUARE = 0

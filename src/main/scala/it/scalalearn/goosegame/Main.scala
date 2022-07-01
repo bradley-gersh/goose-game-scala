@@ -20,38 +20,39 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     println(banner)
-    cli(Map[String, Int]())
+    println(GameState())
+    cli(GameState())
   }
 
   @tailrec
-  def cli(squaresByPlayerNames: Map[String, Int]): Unit = {
+  def cli(gameState: GameState): Unit = {
     Option(readLine("> ")) match {
       case Some("") | None => println("goodbye\n")
 
       case Some(input) => 
-        processInput(squaresByPlayerNames, input) match {
+        processInput(gameState, input) match {
           case Left(error) =>
             println(error + "\n")
-            cli(squaresByPlayerNames)
+            cli(gameState)
 
-          case Right((updatedSquaresByPlayerNames, success)) =>
+          case Right((newGameState, success)) =>
             println(success + "\n")
-            cli(updatedSquaresByPlayerNames)
+            cli(newGameState)
         }
     }
   }
 
-  def processInput(squaresByPlayerNames: Map[String, Int], input: String): Either[String, (Map[String, Int], String)] = {
+  def processInput(gameState: GameState, input: String): Either[String, (GameState, String)] = {
     input match {
-      case ADD_PLAYER(newName) => Logic.addPlayer(squaresByPlayerNames, newName)
+      case ADD_PLAYER(newName) => GameStateChanger.addPlayer(gameState, newName)
 
       case MOVE_PLAYER_CHOSEN_DICE(name, die1String, die2String) =>
         val dice = List(die1String.toInt, die2String.toInt)
-        Logic.movePlayer(squaresByPlayerNames, name, dice)
+        Logic.movePlayer(gameState, name, dice)
 
       case MOVE_PLAYER_RANDOM_DICE(name) =>
         val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
-        Logic.movePlayer(squaresByPlayerNames, name, dice)
+        Logic.movePlayer(gameState, name, dice)
 
       case "" => Left("no input")
 

@@ -3,18 +3,21 @@ package it.scalalearn.goosegame
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-import Constants._
+import it.scalalearn.goosegame.constants.SpecialSquares._
+import it.scalalearn.goosegame.gamestate._
+import it.scalalearn.goosegame.readout._
 
 object Logic {
-  def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[String, (GameState, String)] = {
+  def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[ErrorReadout, (GameState, Readout)] = {
     for {
-      validatedDice <- validateDice(dice)
-      oldSquare <- gameState.getPlayerSquare(name).toRight(s"$name: unrecognized player")
+      _ <- validateDice(dice)
+      oldSquare <- validatePlayer(gameState, name)
     } yield {
-      val status = new mutable.StringBuilder(s"$name rolls ${validatedDice.mkString(", ")}. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
+      val status = new mutable.StringBuilder(
+        s"$name rolls ${dice.mkString(", ")}. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to ")
       val (newGameState, newStatus) = advance(gameState, name, oldSquare, oldSquare, dice, status) // consider wrapping parameters into an object
 
-      (newGameState, newStatus.toString)
+      (newGameState, Readout(newStatus.toString))
     }
   }
 
@@ -31,16 +34,16 @@ object Logic {
 
       case BRIDGE =>
         val (gameStateAfterPrank, statusAfterPrank) = checkPrank(gameState, name, BRIDGE_END, startSquare)
-        (GameStateChanger.move(gameStateAfterPrank, name, BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").append(statusAfterPrank))
+        (GameStateChanger.movePlayer(gameStateAfterPrank, name, BRIDGE_END), status.append(s"The Bridge. $name jumps to $BRIDGE_END").append(statusAfterPrank))
 
       case newSquare if newSquare > LAST_SQUARE =>
         val bounceTo = LAST_SQUARE - (newSquare - LAST_SQUARE)
         val (gameStateAfterPrank, statusAfterPrank) = checkPrank(gameState, name, bounceTo, startSquare)
-        (GameStateChanger.move(gameStateAfterPrank, name, bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(statusAfterPrank))
+        (GameStateChanger.movePlayer(gameStateAfterPrank, name, bounceTo), status.append(s"$LAST_SQUARE. $name bounces! $name returns to $bounceTo").append(statusAfterPrank))
 
       case newSquare if GOOSE_SQUARES(newSquare) =>
         val (gameStateAfterPrank, statusAfterPrank) = checkPrank(gameState, name, newSquare, startSquare)
-        advance(GameStateChanger.move(gameStateAfterPrank, name, newSquare + dice.sum),
+        advance(GameStateChanger.movePlayer(gameStateAfterPrank, name, newSquare + dice.sum),
           name,
           newSquare,
           startSquare,
@@ -49,7 +52,7 @@ object Logic {
 
       case newSquare =>
         val (gameStateAfterPrank, statusAfterPrank) = checkPrank(gameState, name, newSquare, startSquare)
-        (GameStateChanger.move(gameStateAfterPrank, name, newSquare), status.append(s"$newSquare").append(statusAfterPrank))
+        (GameStateChanger.movePlayer(gameStateAfterPrank, name, newSquare), status.append(s"$newSquare").append(statusAfterPrank))
     }
   }
 
@@ -59,12 +62,15 @@ object Logic {
       (output, player) => {
         val (newGameState, status) = output
 
-        (GameStateChanger.move(newGameState, player, startSquare),
+        (GameStateChanger.movePlayer(newGameState, player, startSquare),
           status.append(s". On $newSquare there is $player, who returns to $startSquare"))
       }
     )
   }
 
-  def validateDice(dice: List[Int]): Either[String, List[Int]] =
-    if (dice.forall(die => die >= 1 && die <= 6)) Right(dice) else Left("Dice must have value from 1 to 6")
+  def validateDice(dice: List[Int]): Either[ErrorReadout, List[Int]] =
+    if (dice.forall(die => die >= 1 && die <= 6)) Right(dice) else Left(ErrorReadout("Dice must have value from 1 to 6"))
+
+  def validatePlayer(gameState: GameState, name: String): Either[ErrorReadout, Int] =
+    gameState.getPlayerSquare(name).toRight(ErrorReadout(s"$name: unrecognized player"))
 }

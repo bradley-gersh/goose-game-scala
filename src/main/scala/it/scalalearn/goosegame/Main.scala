@@ -1,5 +1,8 @@
 package it.scalalearn.goosegame
 
+import it.scalalearn.goosegame.readout._
+import it.scalalearn.goosegame.gamestate._
+
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
 import scala.util.Random
@@ -31,18 +34,18 @@ object Main {
 
       case Some(input) => 
         processInput(gameState, input) match {
-          case Left(error) =>
-            println(error + "\n")
+          case Left(errorReadout) =>
+            errorReadout.display()
             cli(gameState)
 
-          case Right((newGameState, success)) =>
-            println(success + "\n")
+          case Right((newGameState, successReadout)) =>
+            successReadout.display()
             cli(newGameState)
         }
     }
   }
 
-  def processInput(gameState: GameState, input: String): Either[String, (GameState, String)] = {
+  def processInput(gameState: GameState, input: String): Either[ErrorReadout, (GameState, Readout)] = {
     input match {
       case ADD_PLAYER(newName) => GameStateChanger.addPlayer(gameState, newName)
 
@@ -54,9 +57,9 @@ object Main {
         val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
         Logic.movePlayer(gameState, name, dice)
 
-      case "" => Left("no input")
+      case "" => Left(ErrorReadout("no input"))
 
-      case _ => Left("unrecognized command")
+      case _ => Left(ErrorReadout("unrecognized command"))
     }
   }
 }

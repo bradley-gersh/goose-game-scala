@@ -1,6 +1,6 @@
-package it.scalalearn.goosegame
+package it.scalalearn.goosegame.gamestate
 
-import Constants._
+import it.scalalearn.goosegame.constants.SpecialSquares._
 
 case class GameState(playerSquares: Map[String, Int] = Map()) {
   def players: Iterable[String] = playerSquares.keys

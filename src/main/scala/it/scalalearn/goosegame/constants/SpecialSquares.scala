@@ -1,6 +1,6 @@
-package it.scalalearn.goosegame
+package it.scalalearn.goosegame.constants
 
-object Constants {
+object SpecialSquares {
   final val START_SQUARE = 0
   final val LAST_SQUARE = 63
   final val BRIDGE = 6

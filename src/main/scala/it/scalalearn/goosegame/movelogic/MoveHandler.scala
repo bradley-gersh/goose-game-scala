@@ -17,6 +17,7 @@ object MoveHandler {
     } yield {
       val move = Move(name, previousSquare, previousSquare, validDice)
       val startReadout = ReadoutBuilder.logStartRoll(name, previousSquare, validDice)
+
       val (newGameState, finalReadout) = advance(gameState, move, startReadout)
 
       (newGameState, finalReadout.seal())
@@ -33,7 +34,8 @@ object MoveHandler {
     // Then do and return something AFTER the match statement. Consider also having an object that builds the
     // output status. Here it's just a message, but it might be something else in the future.
     previousSquare + dice.sum match {
-      case LAST_SQUARE => (GameState(), ReadoutBuilder.appendWin(intermediateReadout, name))
+      case LAST_SQUARE =>
+        (GameState(), ReadoutBuilder.appendWin(intermediateReadout, name))
 
       case BRIDGE =>
         val updatedReadout = ReadoutBuilder.appendBridge(intermediateReadout, name)
@@ -65,6 +67,7 @@ object MoveHandler {
 
   def checkPrank(gameState: GameState, name: String, newSquare: Int, startSquare: Int): (GameState, String) = {
     val bumpNames = gameState.playersOnSquare(name, newSquare)
+
     bumpNames.foldLeft((gameState, ""))(
       (output, player) => {
         val (newGameState, status) = output

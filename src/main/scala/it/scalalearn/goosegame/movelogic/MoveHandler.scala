@@ -3,6 +3,7 @@ package it.scalalearn.goosegame.movelogic
 import it.scalalearn.goosegame.errors.{DiceError, DoubledPlayerError, GameError, UnknownPlayerError}
 import it.scalalearn.goosegame.gamestate.GameState
 import it.scalalearn.goosegame.gamestate.SpecialSquares.{BRIDGE, BRIDGE_END, GOOSE_SQUARES, LAST_SQUARE}
+import it.scalalearn.goosegame.movelogic.MoveType
 import it.scalalearn.goosegame.rosterlogic.RosterHandler
 import it.scalalearn.goosegame.readout.{FinalReadout, ReadoutData, ReadoutBuilder}
 
@@ -13,59 +14,61 @@ object MoveHandler {
   def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, (GameState, FinalReadout)] = {
     for {
       validDice <- validateDice(dice)
-      previousSquare <- gameState.getPlayerSquare(name)
+      startSquare <- gameState.getPlayerSquare(name)
     } yield {
-      val move = Move(name, previousSquare, previousSquare, validDice)
-      val startReadout = ReadoutBuilder.logStartRoll(name, previousSquare, validDice)
+      val move = Move(name, startSquare, startSquare, validDice)
+      val startReadout = ReadoutBuilder.logStartRoll(name, startSquare, validDice)
 
-      val (newGameState, finalReadout) = advance(gameState, move, startReadout)
+      val squareList = makeSquareList(move, List[Int]())
+      val (newGameState, finalReadout) = interpretMoves(gameState, move, squareList, startReadout)
 
       (newGameState, finalReadout.seal())
     }
   }
 
   @tailrec
-  def advance(gameState: GameState, move: Move, ReadoutData: ReadoutData): (GameState, ReadoutData) = {
-    val Move(name, previousSquare, startSquare, dice) = move
+  def makeSquareList(firstMove: Move, squareList: List[Int]): List[Int] = {
+    val Move(name, previousSquare, startSquare, dice) = firstMove
+
+    previousSquare + dice.sum match {
+      case BRIDGE =>
+        (BRIDGE_END :: BRIDGE :: squareList).reverse
+
+      case beyondLastSquare if beyondLastSquare > LAST_SQUARE =>
+        val postBounceSquare = LAST_SQUARE - (beyondLastSquare - LAST_SQUARE)
+        (postBounceSquare :: beyondLastSquare :: squareList).reverse
+
+      case gooseSquare if GOOSE_SQUARES(gooseSquare) =>
+        val nextMove = Move(name, gooseSquare, startSquare, dice)
+        makeSquareList(nextMove, gooseSquare :: squareList)
+
+      case normalSquare =>
+        (normalSquare :: squareList).reverse
+    }
+  }
+
+  def interpretMoves(gameState: GameState, move: Move, squareList: List[Int], readoutData: ReadoutData): (GameState, ReadoutData) = {
+    val Move(name, _, startSquare, dice) = move
 
     assert(validateDice(dice).isRight)
     assert(gameState.hasPlayer(name))
 
-    val square = previousSquare + dice.sum
+    squareList.foldLeft((gameState, readoutData))(
+      (stateTuple, square) => {
+        val (newGameState, newReadoutData) = stateTuple
 
-    // don't return immediately from this match. Make a new variable, like nextSquare, to pull out of the match.
-    // Then do and return something AFTER the match statement. Consider also having an object that builds the
-    // output status. Here it's just a message, but it might be something else in the future.
+        val moveType = getMoveType(square)
 
-    square match {
-      case LAST_SQUARE =>
-        (GameState(), ReadoutBuilder.appendWin(ReadoutData, name))
+        val updatedReadout = ReadoutBuilder.appendMove(newReadoutData, name, square, moveType)
+        val (prankGameState, prankReadoutData) = checkPrank(newGameState, name, square, startSquare, updatedReadout)
+        val gooseReadoutData = if (moveType == MoveType.GOOSE_START) {
+          ReadoutBuilder.appendMove(prankReadoutData, name, square, MoveType.GOOSE_CONTINUE)
+        } else
+          prankReadoutData
 
-      case BRIDGE =>
-        val updatedReadout = ReadoutBuilder.appendBridge(ReadoutData, name)
-        val (gameStateAfterPrank, prankedReadout) = checkPrank(gameState, name, BRIDGE_END, startSquare, updatedReadout)
-        (GameState(gameStateAfterPrank, name, BRIDGE_END), prankedReadout)
-
-      case newSquare if newSquare > LAST_SQUARE =>
-        val bounceToSquare = LAST_SQUARE - (newSquare - LAST_SQUARE)
-        val updatedReadout = ReadoutBuilder.appendBounce(ReadoutData, name, bounceToSquare)
-        val (gameStateAfterPrank, prankedReadout) = checkPrank(gameState, name, bounceToSquare, startSquare, updatedReadout)
-        (GameState(gameStateAfterPrank, name, bounceToSquare), prankedReadout)
-
-      case newSquare if GOOSE_SQUARES(newSquare) =>
-        val updatedReadout = ReadoutBuilder.appendGooseStart(ReadoutData, newSquare)
-        val (gameStateAfterPrank, prankedReadout) = checkPrank(gameState, name, newSquare, startSquare, updatedReadout)
-        val lastUpdatedReadout = ReadoutBuilder.appendGooseContinue(prankedReadout, name)
-
-        val nextMove = Move(name, newSquare, startSquare, dice)
-
-        advance(GameState(gameStateAfterPrank, name, newSquare + dice.sum), nextMove, lastUpdatedReadout)
-
-      case newSquare =>
-        val updatedReadout = ReadoutBuilder.appendNormal(ReadoutData, newSquare)
-        val (gameStateAfterPrank, prankedReadout) = checkPrank(gameState, name, newSquare, startSquare, updatedReadout)
-        (GameState(gameStateAfterPrank, name, newSquare), prankedReadout)
-    }
+        (GameState(prankGameState, name, square), gooseReadoutData)
+      }
+    )
   }
 
   def checkPrank(gameState: GameState,
@@ -90,4 +93,12 @@ object MoveHandler {
       Right(dice)
     else
       Left(DiceError)
+
+  def getMoveType(square: Int): MoveType = square match {
+    case LAST_SQUARE => MoveType.LAST
+    case BRIDGE => MoveType.BRIDGE
+    case beyondLastSquare if beyondLastSquare > LAST_SQUARE => MoveType.BOUNCE
+    case gooseSquare if GOOSE_SQUARES(gooseSquare) => MoveType.GOOSE_START
+    case _ => MoveType.NORMAL
+  }
 }

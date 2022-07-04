@@ -1,7 +1,7 @@
 package it.scalalearn.goosegame.gamestate
 
 object SpecialSquares {
-  final val START_SQUARE = 0
+  final val FIRST_SQUARE = 0
   final val LAST_SQUARE = 63
   final val BRIDGE = 6
   final val BRIDGE_END = 12

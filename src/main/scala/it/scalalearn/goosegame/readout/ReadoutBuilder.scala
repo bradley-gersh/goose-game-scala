@@ -1,9 +1,10 @@
 package it.scalalearn.goosegame.readout
 
 import it.scalalearn.goosegame.gamestate.GameState
+import it.scalalearn.goosegame.movelogic.MoveType
+import it.scalalearn.goosegame.movelogic.MoveType.{BOUNCE, BRIDGE, GOOSE_CONTINUE, GOOSE_START, LAST, NORMAL}
 import it.scalalearn.goosegame.readout.ReadoutData
-import it.scalalearn.goosegame.readout.ReadoutMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG,
-  MID_ROLL_GOOSE_CONTINUE_MSG, MID_ROLL_GOOSE_START_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
+import it.scalalearn.goosegame.readout.ReadoutMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG, MID_ROLL_GOOSE_CONTINUE_MSG, MID_ROLL_GOOSE_START_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
 
 object ReadoutBuilder {
   def appendMessage(readoutData: ReadoutData, newMessage: String): ReadoutData =
@@ -12,23 +13,16 @@ object ReadoutBuilder {
   def startLog(message: String): ReadoutData =
     ReadoutData(List(message))
 
-  def appendBounce(readoutData: ReadoutData, name: String, bounceToSquare: Int): ReadoutData =
-    appendMessage(readoutData, MID_ROLL_BOUNCE_MSG(name, bounceToSquare))
-
-  def appendBridge(readoutData: ReadoutData, name: String): ReadoutData =
-    appendMessage(readoutData, MID_ROLL_BRIDGE_MSG(name))
-
-  def appendGooseStart(readoutData: ReadoutData, newSquare: Int): ReadoutData =
-    appendMessage(readoutData, MID_ROLL_GOOSE_START_MSG(newSquare))
-
-  def appendGooseContinue(readoutData: ReadoutData, name: String): ReadoutData =
-    appendMessage(readoutData, MID_ROLL_GOOSE_CONTINUE_MSG(name))
-
-  def appendWin(readoutData: ReadoutData, name: String): ReadoutData =
-    appendMessage(readoutData, WIN_MSG(name))
-
-  def appendNormal(readoutData: ReadoutData, square: Int): ReadoutData =
-    appendMessage(readoutData, square.toString)
+  def appendMove(readoutData: ReadoutData, name: String, square: Int, moveType: MoveType): ReadoutData = {
+    moveType match {
+      case BOUNCE => appendMessage(readoutData, MID_ROLL_BOUNCE_MSG(name))
+      case BRIDGE => appendMessage(readoutData, MID_ROLL_BRIDGE_MSG(name))
+      case GOOSE_START => appendMessage(readoutData, MID_ROLL_GOOSE_START_MSG(square))
+      case GOOSE_CONTINUE => appendMessage(readoutData, MID_ROLL_GOOSE_CONTINUE_MSG(name))
+      case NORMAL => appendMessage(readoutData, square.toString)
+      case LAST => appendMessage(readoutData, WIN_MSG(name))
+    }
+  }
 
   def appendPrank(readoutData: ReadoutData,
                   otherPlayer: String,

@@ -2,7 +2,8 @@ package it.scalalearn.goosegame.readout
 
 import it.scalalearn.goosegame.gamestate.GameState
 import it.scalalearn.goosegame.readout.IntermediateReadout
-import it.scalalearn.goosegame.readout.ReadoutMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG, MID_ROLL_GOOSE_CONTINUE_MSG, MID_ROLL_GOOSE_START_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
+import it.scalalearn.goosegame.readout.ReadoutMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG,
+  MID_ROLL_GOOSE_CONTINUE_MSG, MID_ROLL_GOOSE_START_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
 
 object ReadoutBuilder {
   def appendMessage(intermediateReadout: IntermediateReadout, newMessage: String): IntermediateReadout =

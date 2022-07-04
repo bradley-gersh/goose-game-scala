@@ -1,44 +1,44 @@
 package it.scalalearn.goosegame.readout
 
 import it.scalalearn.goosegame.gamestate.GameState
-import it.scalalearn.goosegame.readout.IntermediateReadout
+import it.scalalearn.goosegame.readout.ReadoutData
 import it.scalalearn.goosegame.readout.ReadoutMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG,
   MID_ROLL_GOOSE_CONTINUE_MSG, MID_ROLL_GOOSE_START_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
 
 object ReadoutBuilder {
-  def appendMessage(intermediateReadout: IntermediateReadout, newMessage: String): IntermediateReadout =
-    IntermediateReadout(newMessage :: intermediateReadout.messages)
+  def appendMessage(readoutData: ReadoutData, newMessage: String): ReadoutData =
+    ReadoutData(newMessage :: readoutData.messages)
 
-  def startLog(message: String): IntermediateReadout =
-    IntermediateReadout(List(message))
+  def startLog(message: String): ReadoutData =
+    ReadoutData(List(message))
 
-  def appendBounce(intermediateReadout: IntermediateReadout, name: String, bounceToSquare: Int): IntermediateReadout =
-    appendMessage(intermediateReadout, MID_ROLL_BOUNCE_MSG(name, bounceToSquare))
+  def appendBounce(readoutData: ReadoutData, name: String, bounceToSquare: Int): ReadoutData =
+    appendMessage(readoutData, MID_ROLL_BOUNCE_MSG(name, bounceToSquare))
 
-  def appendBridge(intermediateReadout: IntermediateReadout, name: String): IntermediateReadout =
-    appendMessage(intermediateReadout, MID_ROLL_BRIDGE_MSG(name))
+  def appendBridge(readoutData: ReadoutData, name: String): ReadoutData =
+    appendMessage(readoutData, MID_ROLL_BRIDGE_MSG(name))
 
-  def appendGooseStart(intermediateReadout: IntermediateReadout, newSquare: Int): IntermediateReadout =
-    appendMessage(intermediateReadout, MID_ROLL_GOOSE_START_MSG(newSquare))
+  def appendGooseStart(readoutData: ReadoutData, newSquare: Int): ReadoutData =
+    appendMessage(readoutData, MID_ROLL_GOOSE_START_MSG(newSquare))
 
-  def appendGooseContinue(intermediateReadout: IntermediateReadout, name: String): IntermediateReadout =
-    appendMessage(intermediateReadout, MID_ROLL_GOOSE_CONTINUE_MSG(name))
+  def appendGooseContinue(readoutData: ReadoutData, name: String): ReadoutData =
+    appendMessage(readoutData, MID_ROLL_GOOSE_CONTINUE_MSG(name))
 
-  def appendWin(intermediateReadout: IntermediateReadout, name: String): IntermediateReadout =
-    appendMessage(intermediateReadout, WIN_MSG(name))
+  def appendWin(readoutData: ReadoutData, name: String): ReadoutData =
+    appendMessage(readoutData, WIN_MSG(name))
 
-  def appendNormal(intermediateReadout: IntermediateReadout, square: Int): IntermediateReadout =
-    appendMessage(intermediateReadout, square.toString)
+  def appendNormal(readoutData: ReadoutData, square: Int): ReadoutData =
+    appendMessage(readoutData, square.toString)
 
-  def appendPrank(intermediateReadout: IntermediateReadout,
+  def appendPrank(readoutData: ReadoutData,
                   otherPlayer: String,
                   square: Int,
-                  startSquare: Int): IntermediateReadout =
-    appendMessage(intermediateReadout, MID_ROLL_PRANK_MSG(otherPlayer, square, startSquare))
+                  startSquare: Int): ReadoutData =
+    appendMessage(readoutData, MID_ROLL_PRANK_MSG(otherPlayer, square, startSquare))
 
-  def logAddPlayer(gameState: GameState): IntermediateReadout =
+  def logAddPlayer(gameState: GameState): ReadoutData =
     startLog(LIST_PLAYERS_MSG(gameState))
 
-  def logStartRoll(name: String, previousSquare: Int, dice: List[Int]): IntermediateReadout =
+  def logStartRoll(name: String, previousSquare: Int, dice: List[Int]): ReadoutData =
     startLog(START_ROLL_MSG(name, previousSquare, dice))
 }

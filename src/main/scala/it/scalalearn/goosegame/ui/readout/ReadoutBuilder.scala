@@ -3,7 +3,6 @@ package it.scalalearn.goosegame.ui.readout
 import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.internal.movelogic.MoveType
 import it.scalalearn.goosegame.internal.movelogic.MoveType.{BOUNCE, BRIDGE, GOOSE_CONTINUE, GOOSE_START, LAST, NORMAL}
-import it.scalalearn.goosegame.ui.readout.ReadoutData
 import it.scalalearn.goosegame.ui.readout.ReadoutMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG,
   MID_ROLL_GOOSE_CONTINUE_MSG, MID_ROLL_GOOSE_START_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
 

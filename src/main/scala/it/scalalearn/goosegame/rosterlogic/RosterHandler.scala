@@ -1,4 +1,4 @@
-package it.scalalearn.goosegame.logic
+package it.scalalearn.goosegame.rosterlogic
 
 import it.scalalearn.goosegame.errors.{DoubledPlayerError, GameError, UnknownPlayerError}
 import it.scalalearn.goosegame.gamestate.GameState

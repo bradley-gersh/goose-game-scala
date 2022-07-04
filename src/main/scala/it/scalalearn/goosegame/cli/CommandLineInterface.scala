@@ -3,7 +3,8 @@ package it.scalalearn.goosegame.cli
 import it.scalalearn.goosegame.cli.CLIStrings.*
 import it.scalalearn.goosegame.errors.{GameError, NoInputError, UnknownInputError}
 import it.scalalearn.goosegame.gamestate.GameState
-import it.scalalearn.goosegame.logic.{MoveHandler, RosterHandler}
+import it.scalalearn.goosegame.movelogic.{Move, MoveHandler}
+import it.scalalearn.goosegame.rosterlogic.RosterHandler
 import it.scalalearn.goosegame.readout.FinalReadout
 
 import scala.annotation.tailrec

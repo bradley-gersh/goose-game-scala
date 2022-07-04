@@ -2,7 +2,7 @@ package it.scalalearn.goosegame.internal.movelogic
 
 import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BRIDGE_SQUARE, BRIDGE_END, GOOSE_SQUARES, LAST_SQUARE}
-import it.scalalearn.goosegame.internal.movelogic.Move
+import it.scalalearn.goosegame.internal.movelogic.RawMove
 import it.scalalearn.goosegame.internal.movelogic.MoveType
 import it.scalalearn.goosegame.internal.movelogic.MoveType._
 import it.scalalearn.goosegame.internal.rosterlogic.RosterHandler
@@ -17,10 +17,10 @@ object MoveHandler {
       validDice <- validateDice(dice)
       startSquare <- gameState.getPlayerSquare(name)
     } yield {
-      val move = Move(name, startSquare, startSquare, validDice)
+      val move = RawMove(name, startSquare, startSquare, validDice)
       val startReadout = ReadoutBuilder.logStartRoll(name, startSquare, validDice)
 
-      val moveList = makeMoveList(move, List[(MoveType, Int)]())
+      val moveList = makeMoveList(move, List[ProjectedMove]())
       val (newGameState, finalReadout) = interpretMoves(gameState, move, moveList, startReadout)
 
       (newGameState, finalReadout.seal())
@@ -28,27 +28,31 @@ object MoveHandler {
   }
 
   @tailrec
-  def makeMoveList(firstMove: Move, squareList: List[(MoveType, Int)]): List[(MoveType, Int)] = {
-    val Move(name, previousSquare, startSquare, dice) = firstMove
+  def makeMoveList(firstMove: RawMove, squareList: List[ProjectedMove]): List[ProjectedMove] = {
+    val RawMove(name, previousSquare, startSquare, dice) = firstMove
 
     previousSquare + dice.sum match {
-      case LAST_SQUARE => ((LAST, LAST_SQUARE) :: squareList).reverse
+      case LAST_SQUARE => (ProjectedMove(LAST, LAST_SQUARE) :: squareList).reverse
 
-      case BRIDGE_SQUARE => ((NORMAL, BRIDGE_END) :: (BRIDGE, BRIDGE_SQUARE) :: squareList).reverse
+      case BRIDGE_SQUARE => (ProjectedMove(NORMAL, BRIDGE_END) ::
+        ProjectedMove(BRIDGE, BRIDGE_SQUARE) ::
+        squareList).reverse
 
       case beyondLastSquare if beyondLastSquare > LAST_SQUARE =>
         val postBounceSquare = LAST_SQUARE - (beyondLastSquare - LAST_SQUARE)
-        ((NORMAL, postBounceSquare) :: (BOUNCE, beyondLastSquare) :: squareList).reverse
+        (ProjectedMove(NORMAL, postBounceSquare) ::
+          ProjectedMove(BOUNCE, beyondLastSquare) ::
+          squareList).reverse
 
       case gooseSquare if GOOSE_SQUARES(gooseSquare) =>
-        makeMoveList(Move(name, gooseSquare, startSquare, dice), (GOOSE_START, gooseSquare) :: squareList)
+        makeMoveList(RawMove(name, gooseSquare, startSquare, dice), ProjectedMove(GOOSE_START, gooseSquare) :: squareList)
 
-      case normalSquare => ((NORMAL, normalSquare) :: squareList).reverse
+      case normalSquare => (ProjectedMove(NORMAL, normalSquare) :: squareList).reverse
     }
   }
 
-  def interpretMoves(gameState: GameState, move: Move, squareList: List[(MoveType, Int)], readoutData: ReadoutData): (GameState, ReadoutData) = {
-    val Move(name, _, startSquare, dice) = move
+  def interpretMoves(gameState: GameState, move: RawMove, squareList: List[ProjectedMove], readoutData: ReadoutData): (GameState, ReadoutData) = {
+    val RawMove(name, _, startSquare, dice) = move
 
     assert(validateDice(dice).isRight)
     assert(gameState.hasPlayer(name))
@@ -56,7 +60,7 @@ object MoveHandler {
     squareList.foldLeft((gameState, readoutData))(
       (stateTuple, squareTuple) => {
         val (newGameState, newReadoutData) = stateTuple
-        val (moveType, square) = squareTuple
+        val ProjectedMove(moveType, square) = squareTuple
 
         val updatedReadout = ReadoutBuilder.appendMove(newReadoutData, name, square, moveType)
         val (prankGameState, prankReadoutData) = checkPrank(newGameState, name, square, startSquare, updatedReadout)

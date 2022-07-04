@@ -39,20 +39,19 @@ object MoveHandler {
 
       case BRIDGE =>
         val updatedReadout = ReadoutBuilder.appendBridge(intermediateReadout, name)
-        val (gameStateAfterPrank, prankMsg) = checkPrank(gameState, name, BRIDGE_END, startSquare)
-        (GameState(gameStateAfterPrank, name, BRIDGE_END), ReadoutBuilder.appendPrank(updatedReadout, prankMsg))
+        val (gameStateAfterPrank, prankedReadout) = checkPrank(gameState, name, BRIDGE_END, startSquare, updatedReadout)
+        (GameState(gameStateAfterPrank, name, BRIDGE_END), prankedReadout)
 
       case newSquare if newSquare > LAST_SQUARE =>
         val bounceToSquare = LAST_SQUARE - (newSquare - LAST_SQUARE)
         val updatedReadout = ReadoutBuilder.appendBounce(intermediateReadout, name, bounceToSquare)
-        val (gameStateAfterPrank, statusAfterPrank) = checkPrank(gameState, name, bounceToSquare, startSquare)
-        (GameState(gameStateAfterPrank, name, bounceToSquare), ReadoutBuilder.appendPrank(updatedReadout, statusAfterPrank))
+        val (gameStateAfterPrank, prankedReadout) = checkPrank(gameState, name, bounceToSquare, startSquare, updatedReadout)
+        (GameState(gameStateAfterPrank, name, bounceToSquare), prankedReadout)
 
       case newSquare if GOOSE_SQUARES(newSquare) =>
         val updatedReadout = ReadoutBuilder.appendGooseStart(intermediateReadout, newSquare)
-        val (gameStateAfterPrank, prankMsg) = checkPrank(gameState, name, newSquare, startSquare)
-        val nextUpdatedReadout = ReadoutBuilder.appendPrank(updatedReadout, prankMsg)
-        val lastUpdatedReadout = ReadoutBuilder.appendGooseContinue(nextUpdatedReadout, name)
+        val (gameStateAfterPrank, prankedReadout) = checkPrank(gameState, name, newSquare, startSquare, updatedReadout)
+        val lastUpdatedReadout = ReadoutBuilder.appendGooseContinue(prankedReadout, name)
 
         val nextMove = Move(name, newSquare, startSquare, dice)
 
@@ -60,20 +59,24 @@ object MoveHandler {
 
       case newSquare =>
         val updatedReadout = ReadoutBuilder.appendNormal(intermediateReadout, newSquare)
-        val (gameStateAfterPrank, prankMsg) = checkPrank(gameState, name, newSquare, startSquare)
-        (GameState(gameStateAfterPrank, name, newSquare), ReadoutBuilder.appendPrank(updatedReadout, prankMsg))
+        val (gameStateAfterPrank, prankedReadout) = checkPrank(gameState, name, newSquare, startSquare, updatedReadout)
+        (GameState(gameStateAfterPrank, name, newSquare), prankedReadout)
     }
   }
 
-  def checkPrank(gameState: GameState, name: String, newSquare: Int, startSquare: Int): (GameState, String) = {
-    val bumpNames = gameState.playersOnSquare(name, newSquare)
+  def checkPrank(gameState: GameState,
+                 name: String,
+                 square: Int,
+                 startSquare: Int,
+                 intermediateReadout: IntermediateReadout): (GameState, IntermediateReadout) = {
+    val bumpNames = gameState.playersOnSquare(name, square)
 
-    bumpNames.foldLeft((gameState, ""))(
-      (output, player) => {
-        val (newGameState, status) = output
+    bumpNames.foldLeft((gameState, intermediateReadout))(
+      (output, otherPlayer) => {
+        val (newGameState, currentReadout) = output
 
-        (GameState(newGameState, player, startSquare),
-          status + s". On $newSquare there is $player, who returns to $startSquare")
+        (GameState(newGameState, otherPlayer, startSquare),
+          ReadoutBuilder.appendPrank(currentReadout, otherPlayer, square, startSquare))
       }
     )
   }

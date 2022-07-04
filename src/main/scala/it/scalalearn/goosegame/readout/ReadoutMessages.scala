@@ -22,6 +22,9 @@ object ReadoutMessages {
   def MID_ROLL_NORMAL_SQUARE_MSG(newSquare: Int): String =
     newSquare.toString
 
+  def MID_ROLL_PRANK_MSG(otherPlayer: String, square: Int, startSquare: Int): String =
+    s". On $square there is $otherPlayer, who returns to $startSquare"
+
   def START_ROLL_MSG(name: String, oldSquare: Int, dice: List[Int]): String =
     s"$name rolls ${dice.mkString(", ")}. $name moves from ${if (oldSquare == 0) "Start" else oldSquare} to "
 

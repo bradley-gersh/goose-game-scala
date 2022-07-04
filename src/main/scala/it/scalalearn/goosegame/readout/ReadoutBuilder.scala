@@ -2,7 +2,7 @@ package it.scalalearn.goosegame.readout
 
 import it.scalalearn.goosegame.gamestate.GameState
 import it.scalalearn.goosegame.readout.IntermediateReadout
-import it.scalalearn.goosegame.readout.ReadoutMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG, MID_ROLL_GOOSE_CONTINUE_MSG, MID_ROLL_GOOSE_START_MSG, START_ROLL_MSG, WIN_MSG}
+import it.scalalearn.goosegame.readout.ReadoutMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG, MID_ROLL_GOOSE_CONTINUE_MSG, MID_ROLL_GOOSE_START_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
 
 object ReadoutBuilder {
   def appendMessage(intermediateReadout: IntermediateReadout, newMessage: String): IntermediateReadout =
@@ -29,8 +29,11 @@ object ReadoutBuilder {
   def appendNormal(intermediateReadout: IntermediateReadout, square: Int): IntermediateReadout =
     appendMessage(intermediateReadout, square.toString)
 
-  def appendPrank(intermediateReadout: IntermediateReadout, prankMsg: String): IntermediateReadout =
-    appendMessage(intermediateReadout, prankMsg)
+  def appendPrank(intermediateReadout: IntermediateReadout,
+                  otherPlayer: String,
+                  square: Int,
+                  startSquare: Int): IntermediateReadout =
+    appendMessage(intermediateReadout, MID_ROLL_PRANK_MSG(otherPlayer, square, startSquare))
 
   def logAddPlayer(gameState: GameState): IntermediateReadout =
     startLog(LIST_PLAYERS_MSG(gameState))

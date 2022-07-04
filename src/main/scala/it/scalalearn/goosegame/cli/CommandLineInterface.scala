@@ -1,10 +1,10 @@
 package it.scalalearn.goosegame.cli
 
-import it.scalalearn.goosegame.cli.CLIStrings._
+import it.scalalearn.goosegame.cli.CLIStrings.*
 import it.scalalearn.goosegame.errors.{GameError, NoInputError, UnknownInputError}
-import it.scalalearn.goosegame.gamestate.{GameState, GameStateChanger}
-import it.scalalearn.goosegame.Logic
-import it.scalalearn.goosegame.readout.Readout
+import it.scalalearn.goosegame.gamestate.GameState
+import it.scalalearn.goosegame.logic.{MoveHandler, RosterHandler}
+import it.scalalearn.goosegame.readout.FinalReadout
 
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
@@ -31,17 +31,17 @@ object CommandLineInterface {
     }
   }
 
-  def processInput(gameState: GameState, input: String): Either[GameError, (GameState, Readout)] = {
+  def processInput(gameState: GameState, input: String): Either[GameError, (GameState, FinalReadout)] = {
     input match {
-      case ADD_PLAYER_CMD(newName) => GameStateChanger.addPlayer(gameState, newName)
+      case ADD_PLAYER_CMD(newName) => RosterHandler.addPlayer(gameState, newName)
 
       case MOVE_PLAYER_CHOSEN_DICE_CMD(name, die1String, die2String) =>
         val dice = List(die1String.toInt, die2String.toInt)
-        Logic.movePlayer(gameState, name, dice)
+        MoveHandler.movePlayer(gameState, name, dice)
 
       case MOVE_PLAYER_RANDOM_DICE_CMD(name) =>
         val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
-        Logic.movePlayer(gameState, name, dice)
+        MoveHandler.movePlayer(gameState, name, dice)
 
       case "" => Left(NoInputError)
 

@@ -7,7 +7,6 @@ import it.scalalearn.goosegame.gamestate.GameState
 object Main {
   def main(args: Array[String]): Unit = {
     println(START_MSG)
-    println(GameState())
     cli(GameState())
   }
 }

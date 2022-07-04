@@ -12,11 +12,11 @@ import scala.collection.mutable
 object MoveHandler {
   def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, (GameState, FinalReadout)] = {
     for {
-      dice <- validateDice(dice)
+      validDice <- validateDice(dice)
       previousSquare <- gameState.getPlayerSquare(name)
     } yield {
-      val startReadout = ReadoutBuilder.logStartRoll(name, previousSquare, dice)
-      val (newGameState, finalReadout) = advance(gameState, name, previousSquare, previousSquare, dice, startReadout) // consider wrapping parameters into an object
+      val startReadout = ReadoutBuilder.logStartRoll(name, previousSquare, validDice)
+      val (newGameState, finalReadout) = advance(gameState, name, previousSquare, previousSquare, validDice, startReadout) // consider wrapping parameters into an object
 
       (newGameState, finalReadout.seal())
     }

@@ -1,4 +1,4 @@
-package it.scalalearn.goosegame.readout
+package it.scalalearn.goosegame.ui.readout
 
 case class FinalReadout(message: String) {
   def display(): Unit = println(message + "\n")

@@ -1,7 +1,7 @@
-package it.scalalearn.goosegame.gamestate
+package it.scalalearn.goosegame.internal.gamestate
 
-import it.scalalearn.goosegame.errors.{GameError, UnknownPlayerError}
-import it.scalalearn.goosegame.gamestate.SpecialSquares.FIRST_SQUARE
+import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.FIRST_SQUARE
+import it.scalalearn.goosegame.ui.errors.{GameError, UnknownPlayerError}
 
 case class GameState(playerSquares: Map[String, Int] = Map()) {
   def players: Iterable[String] = playerSquares.keys

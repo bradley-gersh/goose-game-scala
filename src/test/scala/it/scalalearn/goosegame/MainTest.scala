@@ -1,9 +1,9 @@
 package it.scalalearn.goosegame
 
-import it.scalalearn.goosegame.cli.CommandLineInterface
-import it.scalalearn.goosegame.errors.GameError
-import it.scalalearn.goosegame.gamestate.GameState
-import it.scalalearn.goosegame.readout.FinalReadout
+import it.scalalearn.goosegame.internal.gamestate.GameState
+import it.scalalearn.goosegame.ui.cli.CommandLineInterface
+import it.scalalearn.goosegame.ui.errors.GameError
+import it.scalalearn.goosegame.ui.readout.FinalReadout
 
 import scala.collection.mutable.ListBuffer
 import org.scalatest.funsuite.AnyFunSuite

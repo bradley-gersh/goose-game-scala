@@ -1,8 +1,8 @@
-package it.scalalearn.goosegame.rosterlogic
+package it.scalalearn.goosegame.internal.rosterlogic
 
-import it.scalalearn.goosegame.errors.{DoubledPlayerError, GameError, UnknownPlayerError}
-import it.scalalearn.goosegame.gamestate.GameState
-import it.scalalearn.goosegame.readout.{FinalReadout, ReadoutBuilder}
+import it.scalalearn.goosegame.internal.gamestate.GameState
+import it.scalalearn.goosegame.ui.errors.{DoubledPlayerError, GameError, UnknownPlayerError}
+import it.scalalearn.goosegame.ui.readout.{FinalReadout, ReadoutBuilder}
 
 object RosterHandler {
   def addPlayer(gameState: GameState, name: String): Either[GameError, (GameState, FinalReadout)] = {

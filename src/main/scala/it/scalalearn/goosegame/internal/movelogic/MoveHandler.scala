@@ -1,12 +1,13 @@
-package it.scalalearn.goosegame.movelogic
+package it.scalalearn.goosegame.internal.movelogic
 
-import it.scalalearn.goosegame.errors.{DiceError, DoubledPlayerError, GameError, UnknownPlayerError}
-import it.scalalearn.goosegame.gamestate.GameState
-import it.scalalearn.goosegame.gamestate.SpecialSquares.{BRIDGE_SQUARE, BRIDGE_END, GOOSE_SQUARES, LAST_SQUARE}
-import it.scalalearn.goosegame.movelogic.MoveType
-import it.scalalearn.goosegame.movelogic.MoveType._
-import it.scalalearn.goosegame.rosterlogic.RosterHandler
-import it.scalalearn.goosegame.readout.{FinalReadout, ReadoutData, ReadoutBuilder}
+import it.scalalearn.goosegame.internal.gamestate.GameState
+import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BRIDGE_SQUARE, BRIDGE_END, GOOSE_SQUARES, LAST_SQUARE}
+import it.scalalearn.goosegame.internal.movelogic.Move
+import it.scalalearn.goosegame.internal.movelogic.MoveType
+import it.scalalearn.goosegame.internal.movelogic.MoveType._
+import it.scalalearn.goosegame.internal.rosterlogic.RosterHandler
+import it.scalalearn.goosegame.ui.errors.{DiceError, DoubledPlayerError, GameError, UnknownPlayerError}
+import it.scalalearn.goosegame.ui.readout.{FinalReadout, ReadoutData, ReadoutBuilder}
 
 import scala.annotation.tailrec
 

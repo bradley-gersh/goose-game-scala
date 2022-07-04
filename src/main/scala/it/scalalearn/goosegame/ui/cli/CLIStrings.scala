@@ -1,4 +1,4 @@
-package it.scalalearn.goosegame.cli
+package it.scalalearn.goosegame.ui.cli
 
 import scala.util.matching.Regex
 

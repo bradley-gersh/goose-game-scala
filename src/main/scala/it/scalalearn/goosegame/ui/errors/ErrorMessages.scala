@@ -1,4 +1,4 @@
-package it.scalalearn.goosegame.errors
+package it.scalalearn.goosegame.ui.errors
 
 object ErrorMessages {
   final val DICE_ERROR_MSG = "Dice must have value from 1 to 6"

@@ -1,6 +1,6 @@
-package it.scalalearn.goosegame.errors
+package it.scalalearn.goosegame.ui.errors
 
-import it.scalalearn.goosegame.errors.ErrorMessages._
+import it.scalalearn.goosegame.ui.errors.ErrorMessages._
 
 sealed trait GameError(errorMsg: String) {
   def message: String = errorMsg

@@ -1,11 +1,11 @@
-package it.scalalearn.goosegame.cli
+package it.scalalearn.goosegame.ui.cli
 
-import it.scalalearn.goosegame.cli.CLIStrings.*
-import it.scalalearn.goosegame.errors.{GameError, NoInputError, UnknownInputError}
-import it.scalalearn.goosegame.gamestate.GameState
-import it.scalalearn.goosegame.movelogic.{Move, MoveHandler}
-import it.scalalearn.goosegame.rosterlogic.RosterHandler
-import it.scalalearn.goosegame.readout.FinalReadout
+import it.scalalearn.goosegame.internal.gamestate.GameState
+import it.scalalearn.goosegame.internal.movelogic.{Move, MoveHandler}
+import it.scalalearn.goosegame.internal.rosterlogic.RosterHandler
+import it.scalalearn.goosegame.ui.cli.CLIStrings.*
+import it.scalalearn.goosegame.ui.errors.{GameError, NoInputError, UnknownInputError}
+import it.scalalearn.goosegame.ui.readout.FinalReadout
 
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine

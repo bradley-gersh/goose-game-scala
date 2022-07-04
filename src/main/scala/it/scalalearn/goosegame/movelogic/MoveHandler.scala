@@ -59,12 +59,12 @@ object MoveHandler {
 
         val updatedReadout = ReadoutBuilder.appendMove(newReadoutData, name, square, moveType)
         val (prankGameState, prankReadoutData) = checkPrank(newGameState, name, square, startSquare, updatedReadout)
-        val gooseReadoutData = if (moveType == MoveType.GOOSE_START) {
+        val postPrankReadoutData = if (moveType == MoveType.GOOSE_START) {
           ReadoutBuilder.appendMove(prankReadoutData, name, square, MoveType.GOOSE_CONTINUE)
         } else
           prankReadoutData
 
-        (GameState(prankGameState, name, square), gooseReadoutData)
+        (GameState(prankGameState, name, square), postPrankReadoutData)
       }
     )
   }

@@ -147,11 +147,4 @@ class MainTest extends AnyFunSuite {
     val refOutputs = List("Pippo rolls 2, 3. Pippo moves from 4 to 9, The Goose. Pippo moves again and goes to 14, The Goose. Pippo moves again and goes to 19. On 19 there is Pluto, who returns to 4")
     assert(getScript(inputs, gameState) == refOutputs)
   }
-
-  test("Combine a prank and a double Goose jump (prank in middle)") {
-    val gameState = GameState(Map("Pippo" -> 4, "Pluto" -> 9))
-    val inputs = List("move Pippo 2, 3")
-    val refOutputs = List("Pippo rolls 2, 3. Pippo moves from 4 to 9, The Goose. On 9 there is Pluto, who returns to 4. Pippo moves again and goes to 14, The Goose. Pippo moves again and goes to 19")
-    assert(getScript(inputs, gameState) == refOutputs)
-  }
 }

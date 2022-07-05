@@ -13,11 +13,8 @@ object OutputMessages {
   def MID_ROLL_BRIDGE_MSG(name: String): String =
     s"The Bridge. $name jumps to "
 
-  def MID_ROLL_GOOSE_CONTINUE_MSG(name: String): String =
-    s". $name moves again and goes to "
-
-  def MID_ROLL_GOOSE_START_MSG(newSquare: Int): String =
-    s"$newSquare, The Goose"
+  def MID_ROLL_GOOSE_MSG(name: String, newSquare: Int): String =
+    s"$newSquare, The Goose. $name moves again and goes to "
 
   def MID_ROLL_NORMAL_SQUARE_MSG(newSquare: Int): String =
     newSquare.toString

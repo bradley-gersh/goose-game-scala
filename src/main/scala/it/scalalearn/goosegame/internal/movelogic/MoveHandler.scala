@@ -38,7 +38,7 @@ object MoveHandler {
         finishMoves(moves,  Bounce(name, beyondLastSquare), Normal(name, postBounceSquare))
 
       case gooseSquare if GOOSE_SQUARES(gooseSquare) =>
-        computeMoves(MoveData(name, gooseSquare, startSquare, dice), addMove(moves, GooseStart(name, gooseSquare)))
+        computeMoves(MoveData(name, gooseSquare, startSquare, dice), addMove(moves, Goose(name, gooseSquare)))
 
       case normalSquare => finishMoves(moves, Normal(name, normalSquare))
     }
@@ -67,7 +67,7 @@ object MoveHandler {
         }
 
         val postPrankOutputData = move match {
-          case GooseStart(name, endSquare) => OutputBuilder.appendMove(prankOutputData, GooseEnd(name, endSquare))
+//          case GooseStart(name, endSquare) => OutputBuilder.appendMove(prankOutputData, GooseEnd(name, endSquare))
           case _ => prankOutputData
         }
 

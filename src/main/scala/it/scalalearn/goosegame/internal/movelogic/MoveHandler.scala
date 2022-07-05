@@ -4,75 +4,74 @@ import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BRIDGE_SQUARE, BRIDGE_END, GOOSE_SQUARES, LAST_SQUARE}
 import it.scalalearn.goosegame.internal.rosterlogic.RosterHandler
 import it.scalalearn.goosegame.ui.errors.{DiceError, DoubledPlayerError, GameError, UnknownPlayerError}
-import it.scalalearn.goosegame.ui.readout.{FinalReadout, ReadoutData, ReadoutBuilder}
+import it.scalalearn.goosegame.ui.output.{FinalOutput, OutputData, OutputBuilder}
 
 import scala.annotation.tailrec
 
 object MoveHandler {
-  def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, (GameState, FinalReadout)] = {
+  def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, (GameState, FinalOutput)] = {
     for {
       validDice <- validateDice(dice)
       startSquare <- gameState.getPlayerSquare(name)
     } yield {
-      val move = RawMove(name, startSquare, startSquare, validDice)
-      val startReadout = ReadoutBuilder.logStartRoll(name, startSquare, validDice)
+      val moveData = MoveData(name, startSquare, startSquare, validDice)
+      val startOutput = OutputBuilder.logStartRoll(name, startSquare, validDice)
 
-      val moveList = makeMoveList(move, List[ProjectedMove]())
-      val (newGameState, finalReadout) = interpretMoves(gameState, move, moveList, startReadout)
+      val moves = computeMoves(moveData, List[Move]())
+      val (newGameState, finalOutput) = interpretMoves(gameState, moveData, moves, startOutput)
 
-      (newGameState, finalReadout.seal())
+      (newGameState, finalOutput.seal())
     }
   }
 
   @tailrec
-  def makeMoveList(firstMove: RawMove, squareList: List[ProjectedMove]): List[ProjectedMove] = {
-    val RawMove(name, previousSquare, startSquare, dice) = firstMove
+  def computeMoves(moveData: MoveData, moves: List[Move]): List[Move] = {
+    val MoveData(name, previousSquare, startSquare, dice) = moveData
 
     previousSquare + dice.sum match {
-      case LAST_SQUARE => (ProjectedMove(MoveType.LAST, LAST_SQUARE) :: squareList).reverse
+      case LAST_SQUARE => finishMoves(moves, Win(name))
 
-      case BRIDGE_SQUARE => (ProjectedMove(MoveType.NORMAL, BRIDGE_END) ::
-        ProjectedMove(MoveType.BRIDGE, BRIDGE_SQUARE) ::
-        squareList).reverse
+      case BRIDGE_SQUARE => finishMoves(moves, Bridge(name), Normal(name, BRIDGE_END))
 
       case beyondLastSquare if beyondLastSquare > LAST_SQUARE =>
         val postBounceSquare = LAST_SQUARE - (beyondLastSquare - LAST_SQUARE)
-        (ProjectedMove(MoveType.NORMAL, postBounceSquare) ::
-          ProjectedMove(MoveType.BOUNCE, beyondLastSquare) ::
-          squareList).reverse
+        finishMoves(moves,  Bounce(name, beyondLastSquare), Normal(name, postBounceSquare))
 
       case gooseSquare if GOOSE_SQUARES(gooseSquare) =>
-        makeMoveList(RawMove(name, gooseSquare, startSquare, dice), ProjectedMove(MoveType.GOOSE_START, gooseSquare) :: squareList)
+        computeMoves(MoveData(name, gooseSquare, startSquare, dice), addMove(moves, GooseStart(name, gooseSquare)))
 
-      case normalSquare => (ProjectedMove(MoveType.NORMAL, normalSquare) :: squareList).reverse
+      case normalSquare => finishMoves(moves, Normal(name, normalSquare))
     }
   }
 
-  def interpretMoves(gameState: GameState, move: RawMove, squareList: List[ProjectedMove], readoutData: ReadoutData): (GameState, ReadoutData) = {
-    val RawMove(name, _, startSquare, dice) = move
+  def addMove(moves: List[Move], moveToAdd: Move): List[Move] = moveToAdd :: moves
+
+  def finishMoves(moves: List[Move], movesToAdd: Move*): List[Move] = moves.reverse ++ movesToAdd
+
+  def interpretMoves(gameState: GameState, moveData: MoveData, moves: List[Move], outputData: OutputData): (GameState, OutputData) = {
+    val MoveData(name, _, startSquare, dice) = moveData
 
     assert(validateDice(dice).isRight)
     assert(gameState.hasPlayer(name))
 
-    squareList.foldLeft((gameState, readoutData))(
-      (stateTuple, squareTuple) => {
-        val (newGameState, newReadoutData) = stateTuple
-        val ProjectedMove(moveType, square) = squareTuple
+    moves.foldLeft((gameState, outputData))(
+      (stateTuple, move) => {
+        val (newGameState, newOutputData) = stateTuple
 
-        val updatedReadout = ReadoutBuilder.appendMove(newReadoutData, name, square, moveType)
-        val (prankGameState, prankReadoutData) = checkPrank(newGameState, name, square, startSquare, updatedReadout)
+        val updatedOutput = OutputBuilder.appendMove(newOutputData, move)
+        val (prankGameState, prankOutputData) = checkPrank(newGameState, move.name, move.endSquare, startSquare, updatedOutput)
 
-        val postPrankGameState = if (moveType == MoveType.LAST)
-          GameState()
-        else
-          GameState(prankGameState, name, square)
+        val postPrankGameState = move match {
+          case Win(_, _) => GameState()
+          case _ => GameState(prankGameState, move.name, move.endSquare)
+        }
 
-        val postPrankReadoutData = if (moveType == MoveType.GOOSE_START)
-          ReadoutBuilder.appendMove(prankReadoutData, name, square, MoveType.GOOSE_CONTINUE)
-        else
-          prankReadoutData
+        val postPrankOutputData = move match {
+          case GooseStart(name, endSquare) => OutputBuilder.appendMove(prankOutputData, GooseEnd(name, endSquare))
+          case _ => prankOutputData
+        }
 
-        (postPrankGameState, postPrankReadoutData)
+        (postPrankGameState, postPrankOutputData)
       }
     )
   }
@@ -81,15 +80,15 @@ object MoveHandler {
                  name: String,
                  square: Int,
                  startSquare: Int,
-                 ReadoutData: ReadoutData): (GameState, ReadoutData) = {
+                 outputData: OutputData): (GameState, OutputData) = {
     val bumpNames = gameState.playersOnSquare(name, square)
 
-    bumpNames.foldLeft((gameState, ReadoutData))(
+    bumpNames.foldLeft((gameState, outputData))(
       (output, otherPlayer) => {
-        val (newGameState, currentReadout) = output
+        val (newGameState, currentOutput) = output
 
         (GameState(newGameState, otherPlayer, startSquare),
-          ReadoutBuilder.appendPrank(currentReadout, otherPlayer, square, startSquare))
+          OutputBuilder.appendPrank(currentOutput, otherPlayer, square, startSquare))
       }
     )
   }

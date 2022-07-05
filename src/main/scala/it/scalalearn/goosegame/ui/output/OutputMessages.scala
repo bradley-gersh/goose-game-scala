@@ -1,9 +1,9 @@
-package it.scalalearn.goosegame.ui.readout
+package it.scalalearn.goosegame.ui.output
 
 import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BRIDGE_END, LAST_SQUARE}
 
-object ReadoutMessages {
+object OutputMessages {
   def LIST_PLAYERS_MSG(gameState: GameState): String =
     gameState.players.mkString("players: ", ", ", "")
 

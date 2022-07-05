@@ -21,5 +21,5 @@ case object GameState {
   def apply(gameState: GameState, name: String): GameState = apply(gameState, name, FIRST_SQUARE)
 
   def apply(gameState: GameState, name: String, square: Int): GameState =
-    GameState(gameState.playerSquares + (name -> square))
+    new GameState(gameState.playerSquares + (name -> square))
 }

@@ -3,7 +3,7 @@ package it.scalalearn.goosegame
 import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.ui.cli.CommandLineInterface
 import it.scalalearn.goosegame.ui.errors.GameError
-import it.scalalearn.goosegame.ui.readout.FinalReadout
+import it.scalalearn.goosegame.ui.output.FinalOutput
 
 import scala.collection.mutable.ListBuffer
 import org.scalatest.funsuite.AnyFunSuite
@@ -17,7 +17,7 @@ class MainTest extends AnyFunSuite {
         case Left(error) =>
           transcript.append(error.message)
           gameState
-        case Right(newGameState, FinalReadout(message)) =>
+        case Right(newGameState, FinalOutput(message)) =>
           transcript.append(message)
           newGameState
       }

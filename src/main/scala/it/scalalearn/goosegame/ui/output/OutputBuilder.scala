@@ -2,7 +2,7 @@ package it.scalalearn.goosegame.ui.output
 
 import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.internal.movelogic.Move
-import it.scalalearn.goosegame.internal.movelogic.{Bounce, Bridge, Goose, Normal, Win}
+import it.scalalearn.goosegame.internal.movelogic.{Bounce, Bridge, Goose, Stop, Win}
 import it.scalalearn.goosegame.ui.output.OutputMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG,
   MID_ROLL_GOOSE_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
 
@@ -18,7 +18,7 @@ object OutputBuilder {
       case Bounce(name, _) => appendMessage(outputData, MID_ROLL_BOUNCE_MSG(name))
       case Bridge(name, _) => appendMessage(outputData, MID_ROLL_BRIDGE_MSG(name))
       case Goose(name, endSquare) => appendMessage(outputData, MID_ROLL_GOOSE_MSG(name, endSquare))
-      case Normal(_, endSquare) => appendMessage(outputData, endSquare.toString)
+      case Stop(_, endSquare) => appendMessage(outputData, endSquare.toString)
       case Win(name, _) => appendMessage(outputData, WIN_MSG(name))
     }
   }

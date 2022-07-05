@@ -16,7 +16,7 @@ object OutputMessages {
   def MID_ROLL_GOOSE_MSG(name: String, newSquare: Int): String =
     s"$newSquare, The Goose. $name moves again and goes to "
 
-  def MID_ROLL_NORMAL_SQUARE_MSG(newSquare: Int): String =
+  def MID_ROLL_STOP_SQUARE_MSG(newSquare: Int): String =
     newSquare.toString
 
   def MID_ROLL_PRANK_MSG(otherPlayer: String, square: Int, startSquare: Int): String =

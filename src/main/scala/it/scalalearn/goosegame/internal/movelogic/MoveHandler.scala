@@ -18,9 +18,9 @@ object MoveHandler {
       val startOutput = OutputBuilder.logStartRoll(name, startSquare, validDice)
 
       val moves = computeMoves(moveData, List[Move]())
-      val (newGameState, finalOutput) = interpretMoves(gameState, moveData, moves, startOutput)
+      val (finalGameState, finalOutput) = generateStateAndOutputFromMoves(gameState, moveData, moves, startOutput)
 
-      (newGameState, finalOutput.seal())
+      (finalGameState, finalOutput.seal())
     }
   }
 
@@ -31,16 +31,16 @@ object MoveHandler {
     previousSquare + dice.sum match {
       case LAST_SQUARE => finishMoves(moves, Win(name))
 
-      case BRIDGE_SQUARE => finishMoves(moves, Bridge(name), Normal(name, BRIDGE_END))
+      case BRIDGE_SQUARE => finishMoves(moves, Bridge(name), Stop(name, BRIDGE_END))
 
       case beyondLastSquare if beyondLastSquare > LAST_SQUARE =>
         val postBounceSquare = LAST_SQUARE - (beyondLastSquare - LAST_SQUARE)
-        finishMoves(moves,  Bounce(name, beyondLastSquare), Normal(name, postBounceSquare))
+        finishMoves(moves,  Bounce(name, beyondLastSquare), Stop(name, postBounceSquare))
 
       case gooseSquare if GOOSE_SQUARES(gooseSquare) =>
         computeMoves(MoveData(name, gooseSquare, startSquare, dice), addMove(moves, Goose(name, gooseSquare)))
 
-      case normalSquare => finishMoves(moves, Normal(name, normalSquare))
+      case stopSquare => finishMoves(moves, Stop(name, stopSquare))
     }
   }
 
@@ -48,7 +48,7 @@ object MoveHandler {
 
   def finishMoves(moves: List[Move], movesToAdd: Move*): List[Move] = moves.reverse ++ movesToAdd
 
-  def interpretMoves(gameState: GameState, moveData: MoveData, moves: List[Move], outputData: OutputData): (GameState, OutputData) = {
+  def generateStateAndOutputFromMoves(gameState: GameState, moveData: MoveData, moves: List[Move], outputData: OutputData): (GameState, OutputData) = {
     val MoveData(name, _, startSquare, dice) = moveData
 
     assert(validateDice(dice).isRight)
@@ -60,7 +60,6 @@ object MoveHandler {
 
         val updatedOutput = OutputBuilder.appendMove(newOutputData, move)
         val updatedGameState = updateGameState(newGameState, move)
-
         checkPrank(updatedGameState, move.name, move.endSquare, startSquare, updatedOutput)
       }
     )

@@ -59,21 +59,16 @@ object MoveHandler {
         val (newGameState, newOutputData) = stateTuple
 
         val updatedOutput = OutputBuilder.appendMove(newOutputData, move)
-        val (prankGameState, prankOutputData) = checkPrank(newGameState, move.name, move.endSquare, startSquare, updatedOutput)
+        val updatedGameState = updateGameState(newGameState, move)
 
-        val postPrankGameState = move match {
-          case Win(_, _) => GameState()
-          case _ => GameState(prankGameState, move.name, move.endSquare)
-        }
-
-        val postPrankOutputData = move match {
-//          case GooseStart(name, endSquare) => OutputBuilder.appendMove(prankOutputData, GooseEnd(name, endSquare))
-          case _ => prankOutputData
-        }
-
-        (postPrankGameState, postPrankOutputData)
+        checkPrank(updatedGameState, move.name, move.endSquare, startSquare, updatedOutput)
       }
     )
+  }
+
+  def updateGameState(gameState: GameState, move: Move): GameState = move match {
+    case Win(_, _) => GameState()
+    case _ => GameState(gameState, move.name, move.endSquare)
   }
 
   def checkPrank(gameState: GameState,

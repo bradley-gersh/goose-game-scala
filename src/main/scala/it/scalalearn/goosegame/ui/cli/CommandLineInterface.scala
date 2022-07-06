@@ -1,12 +1,11 @@
 package it.scalalearn.goosegame.ui.cli
 
-import it.scalalearn.goosegame.internal.gamestate.GameState
-import it.scalalearn.goosegame.internal.movelogic.{MoveData, MoveHandler}
-import it.scalalearn.goosegame.internal.rosterlogic.RosterHandler
-import it.scalalearn.goosegame.ui.cli.CLIStrings.{ADD_PLAYER_CMD, EXIT_MSG, MOVE_PLAYER_CHOSEN_DICE_CMD,
-  MOVE_PLAYER_RANDOM_DICE_CMD, PROMPT}
+import it.scalalearn.goosegame.internal.gamestate.{GameState, GameStateUpdater}
+import it.scalalearn.goosegame.internal.commandlogic.{MoveData, MoveScriptWriter, RosterScriptWriter}
+import it.scalalearn.goosegame.internal.events.{Event, ScriptWriter}
+import it.scalalearn.goosegame.ui.cli.CLIStrings.{ADD_PLAYER_CMD, EXIT_MSG, MOVE_PLAYER_CHOSEN_DICE_CMD, MOVE_PLAYER_RANDOM_DICE_CMD, PROMPT}
 import it.scalalearn.goosegame.ui.errors.{GameError, NoInputError, UnknownInputError}
-import it.scalalearn.goosegame.ui.output.FinalOutput
+import it.scalalearn.goosegame.ui.output.{Output, OutputBuilder}
 
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
@@ -33,24 +32,27 @@ object CommandLineInterface {
     }
   }
 
-  def processInput(gameState: GameState, input: String): Either[GameError, (GameState, FinalOutput)] = {
-    // build state change here. Make the commands an ADT and pass to state builder and output builder.
-    input match {
-      case ADD_PLAYER_CMD(newName) => RosterHandler.addPlayer(gameState, newName)
+  def processInput(gameState: GameState, input: String): Either[GameError, (GameState, Output)] = {
+    for {
+      command <- interpret(input)
+      events <- ScriptWriter.writeEvents(gameState, command)
+      newGameState <- GameStateUpdater.updateState(gameState, events)
+    } yield (newGameState, OutputBuilder.transcribe(newGameState, events))
+  }
 
-      case MOVE_PLAYER_CHOSEN_DICE_CMD(name, die1String, die2String) =>
-        val dice = List(die1String.toInt, die2String.toInt)
-        MoveHandler.movePlayer(gameState, name, dice)
+  def interpret(input: String): Either[GameError, Command] = input match {
+    case ADD_PLAYER_CMD(name) => Right(AddPlayer(name))
 
-      case MOVE_PLAYER_RANDOM_DICE_CMD(name) =>
-        val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
-        MoveHandler.movePlayer(gameState, name, dice)
+    case MOVE_PLAYER_CHOSEN_DICE_CMD(name, die1String, die2String) =>
+      val dice = List(die1String.toInt, die2String.toInt)
+      Right(MovePlayer(name, dice))
 
-      case "" => Left(NoInputError)
+    case MOVE_PLAYER_RANDOM_DICE_CMD(name) =>
+      val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
+      Right(MovePlayer(name, dice))
 
-      case _ => Left(UnknownInputError)
-    }
+    case "" => Left(NoInputError)
 
-    // build output here
+    case _ => Left(UnknownInputError)
   }
 }

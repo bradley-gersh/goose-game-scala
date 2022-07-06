@@ -7,24 +7,24 @@ import it.scalalearn.goosegame.ui.errors.{DiceError, GameError}
 import scala.annotation.tailrec
 
 object MoveScriptWriter {
-  case class MoveData(name: String, previousSquare: Int, startSquare: Int, dice: List[Int])
+  private case class MoveData(name: String, previousSquare: Int, startSquare: Int, dice: List[Int])
 
   def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, List[Event]] = {
     for {
       validDice <- validateDice(dice)
       startSquare <- gameState.getPlayerSquare(name)
     } yield {
-      val roll = List(Roll(name, startSquare, validDice))
+      val roll = Roll(name, startSquare, validDice)
       val moves = movePlayerHelper(MoveData(name, startSquare, startSquare, validDice), List[Move]())
       val endSquare = moves.head.endSquare
       val prankMove = prank(gameState, name, endSquare, startSquare)
 
-      roll ++ (prankMove ++ moves).reverse
+      finalizeEvents(roll, moves, prankMove)
     }
   }
 
   @tailrec
-  def movePlayerHelper(moveData: MoveData, moves: List[Move]): List[Move] = {
+  private def movePlayerHelper(moveData: MoveData, moves: List[Move]): List[Move] = {
     val MoveData(name, previousSquare, startSquare, dice) = moveData
 
     previousSquare + dice.sum match {
@@ -43,12 +43,15 @@ object MoveScriptWriter {
     }
   }
 
-  def prank(gameState: GameState, name: String, endSquare: Int, startSquare: Int): List[Move] = {
+  private def prank(gameState: GameState, name: String, endSquare: Int, startSquare: Int): List[Move] = {
     val bumpNames = gameState.playersOnSquare(name, endSquare)
     bumpNames.map(otherName => Prank(otherName, endSquare, startSquare))
   }
 
-  def validateDice(dice: List[Int]): Either[GameError, List[Int]] =
+  private def finalizeEvents(roll: Roll, moves: List[Move], prankMove: List[Move]): List[Event] =
+    roll +: (prankMove ++ moves).reverse
+
+  private def validateDice(dice: List[Int]): Either[GameError, List[Int]] =
     if (dice.forall(die => die >= 1 && die <= 6))
       Right(dice)
     else

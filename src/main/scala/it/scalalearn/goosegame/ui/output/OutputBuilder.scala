@@ -2,7 +2,7 @@ package it.scalalearn.goosegame.ui.output
 
 import it.scalalearn.goosegame.internal.events.{Bounce, Bridge, Event, Goose, Move, PlayerAdded, Prank, Roll, Stop, Win}
 import it.scalalearn.goosegame.internal.gamestate.GameState
-import it.scalalearn.goosegame.ui.output.OutputMessages.{LIST_PLAYERS_MSG, MID_ROLL_BOUNCE_MSG, MID_ROLL_BRIDGE_MSG, MID_ROLL_GOOSE_MSG, MID_ROLL_PRANK_MSG, START_ROLL_MSG, WIN_MSG}
+import it.scalalearn.goosegame.ui.output.OutputMessages._
 
 object OutputBuilder {
   def transcribe(gameState: GameState, events: List[Event]): Output = {

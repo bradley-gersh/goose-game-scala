@@ -16,8 +16,7 @@ object MoveScriptWriter {
     } yield {
       val roll = Roll(name, startSquare, validDice)
       val moves = movePlayerHelper(MoveData(name, startSquare, startSquare, validDice), List[Move]())
-      val endSquare = moves.head.endSquare
-      val prankMove = prank(gameState, name, endSquare, startSquare)
+      val prankMove = prank(gameState, name, moves.head.endSquare, startSquare)
 
       finalizeEvents(roll, moves, prankMove)
     }
@@ -44,8 +43,8 @@ object MoveScriptWriter {
   }
 
   private def prank(gameState: GameState, name: String, endSquare: Int, startSquare: Int): List[Move] = {
-    val bumpNames = gameState.playersOnSquare(name, endSquare)
-    bumpNames.map(otherName => Prank(otherName, endSquare, startSquare))
+    val prankedNames = gameState.playersOnSquare(name, endSquare)
+    prankedNames.map(otherName => Prank(otherName, endSquare, startSquare))
   }
 
   private def finalizeEvents(roll: Roll, moves: List[Move], prankMove: List[Move]): List[Event] =

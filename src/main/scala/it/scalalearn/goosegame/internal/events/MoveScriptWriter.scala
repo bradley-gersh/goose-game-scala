@@ -1,13 +1,14 @@
-package it.scalalearn.goosegame.internal.commandlogic
+package it.scalalearn.goosegame.internal.events
 
-import it.scalalearn.goosegame.internal.events.{Bounce, Bridge, Event, Goose, Move, Prank, Roll, Stop, Win}
-import it.scalalearn.goosegame.internal.gamestate.{GameState, GameStateUpdater}
+import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BRIDGE_END, BRIDGE_SQUARE, GOOSE_SQUARES, LAST_SQUARE}
-import it.scalalearn.goosegame.ui.errors.{DiceError, DoubledPlayerError, GameError, UnknownPlayerError}
+import it.scalalearn.goosegame.ui.errors.{DiceError, GameError}
 
 import scala.annotation.tailrec
 
 object MoveScriptWriter {
+  case class MoveData(name: String, previousSquare: Int, startSquare: Int, dice: List[Int])
+
   def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, List[Event]] = {
     for {
       validDice <- validateDice(dice)

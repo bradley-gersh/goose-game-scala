@@ -1,6 +1,5 @@
 package it.scalalearn.goosegame.internal.events
 
-import it.scalalearn.goosegame.internal.commandlogic.{MoveScriptWriter, RosterScriptWriter}
 import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.ui.cli.{AddPlayer, Command, MovePlayer}
 import it.scalalearn.goosegame.ui.errors.GameError

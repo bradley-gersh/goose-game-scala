@@ -7,15 +7,13 @@ import it.scalalearn.goosegame.ui.errors.{DiceError, GameError}
 import scala.annotation.tailrec
 
 object MoveScriptWriter {
-  private case class MoveData(name: String, previousSquare: Int, startSquare: Int, dice: List[Int])
-
   def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, List[Event]] = {
     for {
       validDice <- validateDice(dice)
       startSquare <- gameState.getPlayerSquare(name)
     } yield {
       val roll = Roll(name, startSquare, validDice)
-      val moves = movePlayerHelper(MoveData(name, startSquare, startSquare, validDice), List[Move]())
+      val moves = movePlayerHelper(name, startSquare, validDice, List[Move]())
       val prankMove = prank(gameState, name, moves.head.endSquare, startSquare)
 
       finalizeEvents(roll, moves, prankMove)
@@ -23,9 +21,7 @@ object MoveScriptWriter {
   }
 
   @tailrec
-  private def movePlayerHelper(moveData: MoveData, moves: List[Move]): List[Move] = {
-    val MoveData(name, previousSquare, startSquare, dice) = moveData
-
+  private def movePlayerHelper(name: String, previousSquare: Int, dice: List[Int], moves: List[Move]): List[Move] = {
     previousSquare + dice.sum match {
       case LastSquare => Win(name) :: moves
 
@@ -36,7 +32,7 @@ object MoveScriptWriter {
         Stop(name, postBounceSquare) :: Bounce(name, beyondLastSquare) :: moves
 
       case gooseSquare if GooseSquares(gooseSquare) =>
-        movePlayerHelper(MoveData(name, gooseSquare, startSquare, dice), Goose(name, gooseSquare) :: moves)
+        movePlayerHelper(name, gooseSquare, dice, Goose(name, gooseSquare) :: moves)
 
       case stopSquare => Stop(name, stopSquare) :: moves
     }

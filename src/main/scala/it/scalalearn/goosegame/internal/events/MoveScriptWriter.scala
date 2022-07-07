@@ -1,7 +1,7 @@
 package it.scalalearn.goosegame.internal.events
 
 import it.scalalearn.goosegame.internal.gamestate.GameState
-import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BRIDGE_END, BRIDGE_SQUARE, GOOSE_SQUARES, LAST_SQUARE}
+import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BridgeEnd, BridgeSquare, GooseSquares, LastSquare}
 import it.scalalearn.goosegame.ui.errors.{DiceError, GameError}
 
 import scala.annotation.tailrec
@@ -27,15 +27,15 @@ object MoveScriptWriter {
     val MoveData(name, previousSquare, startSquare, dice) = moveData
 
     previousSquare + dice.sum match {
-      case LAST_SQUARE => Win(name) :: moves
+      case LastSquare => Win(name) :: moves
 
-      case BRIDGE_SQUARE => Stop(name, BRIDGE_END) :: Bridge(name) :: moves
+      case BridgeSquare => Stop(name, BridgeEnd) :: Bridge(name) :: moves
 
-      case beyondLastSquare if beyondLastSquare > LAST_SQUARE =>
-        val postBounceSquare = LAST_SQUARE - (beyondLastSquare - LAST_SQUARE)
+      case beyondLastSquare if beyondLastSquare > LastSquare =>
+        val postBounceSquare = LastSquare - (beyondLastSquare - LastSquare)
         Stop(name, postBounceSquare) :: Bounce(name, beyondLastSquare) :: moves
 
-      case gooseSquare if GOOSE_SQUARES(gooseSquare) =>
+      case gooseSquare if GooseSquares(gooseSquare) =>
         movePlayerHelper(MoveData(name, gooseSquare, startSquare, dice), Goose(name, gooseSquare) :: moves)
 
       case stopSquare => Stop(name, stopSquare) :: moves

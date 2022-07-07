@@ -2,7 +2,7 @@ package it.scalalearn.goosegame.ui.cli
 
 import it.scalalearn.goosegame.internal.gamestate.{GameState, GameStateUpdater}
 import it.scalalearn.goosegame.internal.events.{MoveScriptWriter, RosterScriptWriter, ScriptWriter}
-import it.scalalearn.goosegame.ui.cli.CLIStrings.{EXIT_MSG, PROMPT}
+import it.scalalearn.goosegame.ui.cli.CliStrings.{ExitMsg, Prompt}
 import it.scalalearn.goosegame.ui.errors.GameError
 import it.scalalearn.goosegame.ui.output.{Output, OutputBuilder}
 
@@ -13,8 +13,8 @@ import scala.util.Random
 object CommandLineInterface {
   @tailrec
   def cli(gameState: GameState): Unit = {
-    Option(readLine(PROMPT)) match {
-      case Some("") | None => println(EXIT_MSG)
+    Option(readLine(Prompt)) match {
+      case Some("") | None => println(ExitMsg)
 
       case Some(input) =>
         processInput(gameState, input) match {

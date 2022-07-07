@@ -1,14 +1,14 @@
 package it.scalalearn.goosegame.ui.output
 
 import it.scalalearn.goosegame.internal.gamestate.GameState
-import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BRIDGE_END, LAST_SQUARE}
+import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BridgeEnd, LastSquare}
 
 object OutputMessages {
   def LIST_PLAYERS_MSG(gameState: GameState): String =
     gameState.players.mkString("players: ", ", ", "")
 
   def MID_ROLL_BOUNCE_MSG(name: String): String =
-    s"$LAST_SQUARE. $name bounces! $name returns to "
+    s"$LastSquare. $name bounces! $name returns to "
 
   def MID_ROLL_BRIDGE_MSG(name: String): String =
     s"The Bridge. $name jumps to "
@@ -25,5 +25,5 @@ object OutputMessages {
   def START_ROLL_MSG(name: String, startSquare: Int, dice: List[Int]): String =
     s"$name rolls ${dice.mkString(", ")}. $name moves from ${if (startSquare == 0) "Start" else startSquare} to "
 
-  def WIN_MSG(name: String): String = s"$LAST_SQUARE. $name Wins!!"
+  def WIN_MSG(name: String): String = s"$LastSquare. $name Wins!!"
 }

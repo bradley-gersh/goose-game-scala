@@ -2,8 +2,8 @@ package it.scalalearn.goosegame.ui.cli
 
 import it.scalalearn.goosegame.internal.gamestate.{GameState, GameStateUpdater}
 import it.scalalearn.goosegame.internal.events.{MoveScriptWriter, RosterScriptWriter, ScriptWriter}
-import it.scalalearn.goosegame.ui.cli.CliStrings.{ExitMsg, Prompt}
-import it.scalalearn.goosegame.ui.errors.GameError
+import it.scalalearn.goosegame.ui.cli.CliStrings.{ExitMsg, Prompt, QuitCmd}
+import it.scalalearn.goosegame.ui.errors.{GameError, NoInputError}
 import it.scalalearn.goosegame.ui.output.{Output, OutputBuilder}
 
 import scala.annotation.tailrec
@@ -13,19 +13,15 @@ import scala.util.Random
 object CommandLineInterface {
   @tailrec
   def cli(gameState: GameState): Unit = {
-    Option(readLine(Prompt)) match {
-      case Some("") | None => println(ExitMsg)
+    val input = Option(readLine(Prompt)).getOrElse("")
+    processInput(gameState, input) match {
+      case Left(error) =>
+        error.display()
+        cli(gameState)
 
-      case Some(input) =>
-        processInput(gameState, input) match {
-          case Left(error) =>
-            error.display()
-            cli(gameState)
-
-          case Right((newGameState, successOutput)) =>
-            successOutput.display()
-            cli(newGameState)
-        }
+      case Right((newGameState, successOutput)) =>
+        successOutput.display()
+        cli(newGameState)
     }
   }
 
@@ -35,5 +31,9 @@ object CommandLineInterface {
       events <- ScriptWriter.writeEvents(gameState, command)
       newGameState <- GameStateUpdater.updateState(gameState, events)
     } yield (newGameState, OutputBuilder.transcribe(newGameState, events))
+  }
+
+  def quit(): Unit = {
+    println(ExitMsg)
   }
 }

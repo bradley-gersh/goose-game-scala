@@ -15,14 +15,11 @@ object GameStateUpdater {
 
   private def eventMatcher(previousGameState: GameState, event: Event): Either[GameError, GameState] =
     event match {
-      case PlayerAdded(newName) => addPlayer(previousGameState, newName)
-      case Bounce(_, _) => Right(previousGameState)
-      case Bridge(_, _) => Right(previousGameState)
-      case Goose(_, _) => Right(previousGameState)
+      case PlayerAdded(name) => addPlayer(previousGameState, name)
       case Prank(name, _, endSquare) => updatePlayer(previousGameState, name, endSquare)
-      case Roll(_, _, _) => Right(previousGameState)
       case Stop(name, endSquare) => updatePlayer(previousGameState, name, endSquare)
       case Win(_, _) => resetGameState()
+      case _ => Right(previousGameState)
     }
 
   private def addPlayer(gameState: GameState, name: String): Either[GameError, GameState] = {

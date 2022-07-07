@@ -2,13 +2,12 @@ package it.scalalearn.goosegame.ui.cli
 
 import it.scalalearn.goosegame.internal.gamestate.{GameState, GameStateUpdater}
 import it.scalalearn.goosegame.internal.events.{Event, MoveScriptWriter, QuitEvent, RosterScriptWriter, ScriptWriter}
-import it.scalalearn.goosegame.ui.cli.CliStrings.{ExitMsg, Prompt, QuitCmd}
-import it.scalalearn.goosegame.ui.errors.{GameError, NoInputError}
+import it.scalalearn.goosegame.ui.cli.CliStrings.Prompt
+import it.scalalearn.goosegame.ui.errors.GameError
 import it.scalalearn.goosegame.ui.output.{Output, OutputBuilder}
 
 import scala.annotation.tailrec
 import scala.io.StdIn.readLine
-import scala.util.Random
 
 object CommandLineInterface {
   @tailrec

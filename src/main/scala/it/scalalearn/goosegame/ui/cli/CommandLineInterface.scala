@@ -33,12 +33,13 @@ object CommandLineInterface {
     for {
       command <- CommandReader.interpret(input)
       events <- ScriptWriter.writeEvents(gameState, command)
-      finalGameState <- GameStateUpdater.updateState(gameState, events)
+      newGameState <- GameStateUpdater.updateState(gameState, events)
     } yield {
+      // display state for demonstration purposes only
       println("[command] " + command)
       println("[events] " + events.mkString("[", ", ", "]"))
-      println("[finalGameState] " + finalGameState)
-      (finalGameState, OutputBuilder.transcribe(finalGameState, events))
+      println("[newGameState] " + newGameState)
+      (newGameState, OutputBuilder.transcribe(newGameState, events))
     }
   }
 }

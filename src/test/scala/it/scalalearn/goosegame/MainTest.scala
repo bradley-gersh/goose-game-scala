@@ -17,7 +17,7 @@ class MainTest extends AnyFunSuite {
         case Left(error) =>
           transcript.append(error.message)
           gameState
-        case Right(newGameState, ConsoleOutput(message)) =>
+        case Right(newGameState, _, ConsoleOutput(message)) =>
           transcript.append(message)
           newGameState
       }

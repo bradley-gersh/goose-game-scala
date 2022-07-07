@@ -7,6 +7,7 @@ sealed trait Event
 
 case class PlayerAdded(name: String) extends Event
 case class Roll(name: String, startSquare: Int, dice: List[Int]) extends Event
+case object QuitEvent extends Event
 
 sealed trait Move extends Event {
   def name: String

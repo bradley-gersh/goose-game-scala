@@ -1,7 +1,7 @@
 package it.scalalearn.goosegame.ui.cli
 
 import it.scalalearn.goosegame.ui.errors.{GameError, NoInputError, UnknownInputError}
-import it.scalalearn.goosegame.ui.cli.CliStrings.{AddPlayerCmd, EmptyCmd, MovePlayerChosenDiceCmd, MovePlayerRandomDiceCmd}
+import it.scalalearn.goosegame.ui.cli.CliStrings.{AddPlayerCmd, EmptyCmd, MovePlayerChosenDiceCmd, MovePlayerRandomDiceCmd, QuitCmd}
 
 import scala.util.Random
 
@@ -18,6 +18,8 @@ object CommandReader {
     case MovePlayerRandomDiceCmd(name) =>
       val dice = List(random.nextInt(6) + 1, random.nextInt(6) + 1)
       Right(MovePlayer(name, dice))
+
+    case QuitCmd(_) => Right(Quit)
 
     case EmptyCmd() => Left(NoInputError)
 

@@ -12,7 +12,7 @@ object CliStrings {
                        |
                        |""".stripMargin
   final val Prompt: String = "> "
-  final val ExitMsg: String = "goodbye\n"
+  final val ExitMsg: String = "goodbye"
 
   final val AddPlayerCmd: Regex = """\s*(?i)add\s+player(?-i)\s+(\w+)""".r
   final val EmptyCmd: Regex = """\s*""".r

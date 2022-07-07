@@ -4,6 +4,8 @@ import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BridgeEnd, LastSquare}
 
 object OutputMessages {
+  final val ExitMsg: String = "goodbye\n"
+
   def EndRollStopMsg(newSquare: Int): String =
     newSquare.toString
 

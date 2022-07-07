@@ -1,7 +1,7 @@
 package it.scalalearn.goosegame.ui.cli
 
 import it.scalalearn.goosegame.internal.gamestate.{GameState, GameStateUpdater}
-import it.scalalearn.goosegame.internal.events.{MoveScriptWriter, RosterScriptWriter, ScriptWriter}
+import it.scalalearn.goosegame.internal.events.{Event, MoveScriptWriter, QuitEvent, RosterScriptWriter, ScriptWriter}
 import it.scalalearn.goosegame.ui.cli.CliStrings.{ExitMsg, Prompt, QuitCmd}
 import it.scalalearn.goosegame.ui.errors.{GameError, NoInputError}
 import it.scalalearn.goosegame.ui.output.{Output, OutputBuilder}
@@ -19,21 +19,24 @@ object CommandLineInterface {
         error.display()
         cli(gameState)
 
-      case Right((newGameState, successOutput)) =>
+      case Right((newGameState, events, successOutput)) =>
         successOutput.display()
-        cli(newGameState)
+        if (hasQuitEvent(events))
+          quit()
+        else
+          cli(newGameState)
     }
   }
 
-  def processInput(gameState: GameState, input: String): Either[GameError, (GameState, Output)] = {
+  def processInput(gameState: GameState, input: String): Either[GameError, (GameState, List[Event], Output)] = {
     for {
       command <- CommandReader.interpret(input)
       events <- ScriptWriter.writeEvents(gameState, command)
       newGameState <- GameStateUpdater.updateState(gameState, events)
-    } yield (newGameState, OutputBuilder.transcribe(newGameState, events))
+    } yield (newGameState, events, OutputBuilder.transcribe(newGameState, events))
   }
 
-  def quit(): Unit = {
-    println(ExitMsg)
-  }
+  def hasQuitEvent(events: List[Event]): Boolean = events.contains(QuitEvent)
+
+  def quit(): Unit = () // cleanup routines could happen here
 }

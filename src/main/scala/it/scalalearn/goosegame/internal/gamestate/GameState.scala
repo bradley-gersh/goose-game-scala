@@ -4,7 +4,7 @@ import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.FirstSquare
 import it.scalalearn.goosegame.ui.errors.{GameError, UnknownPlayerError}
 
 case class GameState(playerSquares: Map[String, Int] = Map()) {
-  def players: List[String] = playerSquares.keys.toList
+  val players: List[String] = playerSquares.keys.toList
 
   def hasPlayer(name: String): Boolean = playerSquares.contains(name)
 
@@ -21,5 +21,5 @@ case object GameState {
   def apply(gameState: GameState, name: String): GameState = apply(gameState, name, FirstSquare)
 
   def apply(gameState: GameState, name: String, square: Int): GameState =
-    new GameState(gameState.playerSquares + (name -> square))
+    GameState(gameState.playerSquares + (name -> square))
 }

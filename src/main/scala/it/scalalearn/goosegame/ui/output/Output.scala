@@ -1,5 +1,9 @@
 package it.scalalearn.goosegame.ui.output
 
-case class Output(message: String) {
-  def display(): Unit = println("[output] " + message + "\n")
+sealed trait Output {
+  def display(): Unit
+}
+
+case class ConsoleOutput(message: String) extends Output {
+  def display(): Unit = println(message + "\n")
 }

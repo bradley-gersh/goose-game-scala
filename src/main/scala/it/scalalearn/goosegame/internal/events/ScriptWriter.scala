@@ -6,7 +6,7 @@ import it.scalalearn.goosegame.ui.errors.GameError
 
 object ScriptWriter {
   def writeEvents(gameState: GameState, command: Command): Either[GameError, List[Event]] = command match {
-    case AddPlayer(name) => RosterScriptWriter.addPlayer(gameState, name)
+    case AddPlayer(name) => RosterScriptWriter.addPlayer(name)
     case MovePlayer(name, dice) => MoveScriptWriter.movePlayer(gameState, name, dice)
   }
 }

@@ -1,6 +1,6 @@
 package it.scalalearn.goosegame.internal.events
 
-import it.scalalearn.goosegame.ui.errors.{GameError, DiceError}
+import it.scalalearn.goosegame.ui.errors.{DiceError, GameError}
 
 case class Dice(values: List[Int]) extends AnyVal {
   def sum: Int = values.sum

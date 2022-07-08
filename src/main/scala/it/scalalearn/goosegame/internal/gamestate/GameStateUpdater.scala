@@ -6,18 +6,14 @@ import it.scalalearn.goosegame.ui.output.OutputBuilder
 
 object GameStateUpdater {
   def updateState(gameState: GameState, events: List[Event]): Either[GameError, GameState] =
-    events.foldLeft(Right(gameState): Either[GameError, GameState])((stateOrError, event) => {
-      stateOrError match {
-        case Left(error) => Left(error)
-        case Right(previousGameState) => eventMatcher(previousGameState, event)
-      }
-    })
+    events.foldLeft(Right(gameState): Either[GameError, GameState])((stateOrError, event) =>
+      stateOrError.flatMap(previousGameState => eventMatcher(previousGameState, event)))
 
   private def eventMatcher(previousGameState: GameState, event: Event): Either[GameError, GameState] =
     event match {
       case PlayerAdded(name) => addPlayer(previousGameState, name)
-      case Prank(name, _, endSquare) => updatePlayer(previousGameState, name, endSquare)
-      case Stop(name, endSquare) => updatePlayer(previousGameState, name, endSquare)
+      case Prank(name, _, endSquare) => updatePlayerSquare(previousGameState, name, endSquare)
+      case Stop(name, endSquare) => updatePlayerSquare(previousGameState, name, endSquare)
       case Win(_, _) => resetGameState()
       case _ => Right(previousGameState)
     }
@@ -26,15 +22,15 @@ object GameStateUpdater {
     if (gameState.hasPlayer(name))
       Left(DoubledPlayerError(name))
     else
-      Right(GameState(gameState, name))
+      Right(GameState.addPlayer(gameState, name))
   }
 
-  private def updatePlayer(gameState: GameState, name: String, endSquare: Int): Either[GameError, GameState] = {
+  private def updatePlayerSquare(gameState: GameState, name: String, endSquare: Int): Either[GameError, GameState] = {
     if (gameState.hasPlayer(name))
-      Right(GameState(gameState, name, endSquare))
+      Right(GameState.updatePlayerSquare(gameState, name, endSquare))
     else
       Left(UnknownPlayerError(name))
   }
 
-  private def resetGameState(): Either[GameError, GameState] = Right(GameState())
+  private def resetGameState(): Either[GameError, GameState] = Right(GameState.reset)
 }

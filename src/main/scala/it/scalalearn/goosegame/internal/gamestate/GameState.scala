@@ -11,15 +11,17 @@ case class GameState(playerSquares: Map[String, Int] = Map()) {
   def getPlayerSquare(name: String): Either[GameError, Int] =
     playerSquares.get(name).toRight(UnknownPlayerError(name))
 
-  def playersOnSquare(name: String, square: Int): List[String] = playerSquares.foldLeft(List[String]()) {
-    case (otherPlayers, (otherName, otherSquare)) if square == otherSquare && name != otherName => otherPlayers :+ otherName
-    case (otherPlayers, _) => otherPlayers
-  }
+  def playersOnSquare(name: String, square: Int): List[String] = playerSquares.collect {
+    case (otherName, `square`) if otherName != name => otherName
+  }.toList
 }
 
 case object GameState {
-  def apply(gameState: GameState, name: String): GameState = apply(gameState, name, FirstSquare)
+  def addPlayer(gameState: GameState, name: String): GameState =
+    GameState(gameState.playerSquares + (name -> FirstSquare))
 
-  def apply(gameState: GameState, name: String, square: Int): GameState =
+  def updatePlayerSquare(gameState: GameState, name: String, square: Int): GameState =
     GameState(gameState.playerSquares + (name -> square))
+
+  def reset: GameState = GameState()
 }

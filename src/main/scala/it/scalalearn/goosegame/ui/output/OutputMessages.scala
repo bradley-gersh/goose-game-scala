@@ -1,5 +1,6 @@
 package it.scalalearn.goosegame.ui.output
 
+import it.scalalearn.goosegame.internal.events.Dice
 import it.scalalearn.goosegame.internal.gamestate.GameState
 import it.scalalearn.goosegame.internal.gamestate.SpecialSquares.{BridgeEnd, LastSquare}
 
@@ -24,8 +25,8 @@ object OutputMessages {
   def MidRollPrankMsg(otherPlayer: String, square: Int, startSquare: Int): String =
     s". On $square there is $otherPlayer, who returns to $startSquare"
 
-  def StartRollMsg(name: String, startSquare: Int, dice: List[Int]): String =
-    s"$name rolls ${dice.mkString(", ")}. $name moves from ${if (startSquare == 0) "Start" else startSquare} to "
+  def StartRollMsg(name: String, startSquare: Int, dice: Dice): String =
+    s"$name rolls ${dice.values.mkString(", ")}. $name moves from ${if (startSquare == 0) "Start" else startSquare} to "
 
   def WinMsg(name: String): String = s"$LastSquare. $name Wins!!"
 }

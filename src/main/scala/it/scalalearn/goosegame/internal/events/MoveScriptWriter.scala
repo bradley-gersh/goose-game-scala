@@ -7,13 +7,12 @@ import it.scalalearn.goosegame.ui.errors.{DiceError, GameError}
 import scala.annotation.tailrec
 
 object MoveScriptWriter {
-  def movePlayer(gameState: GameState, name: String, dice: List[Int]): Either[GameError, List[Event]] = {
+  def movePlayer(gameState: GameState, name: String, dice: Dice): Either[GameError, List[Event]] = {
     for {
-      validDice <- validateDice(dice)
       startSquare <- gameState.getPlayerSquare(name)
     } yield {
-      val roll = Roll(name, startSquare, validDice)
-      val moves = movePlayerHelper(name, startSquare, validDice, List[Move]())
+      val roll = Roll(name, startSquare, dice)
+      val moves = movePlayerHelper(name, startSquare, dice, List[Move]())
       val prankMove = prank(gameState, name, moves.head.endSquare, startSquare)
 
       finalizeEvents(roll, moves, prankMove)
@@ -21,7 +20,7 @@ object MoveScriptWriter {
   }
 
   @tailrec
-  private def movePlayerHelper(name: String, previousSquare: Int, dice: List[Int], moves: List[Move]): List[Move] = {
+  private def movePlayerHelper(name: String, previousSquare: Int, dice: Dice, moves: List[Move]): List[Move] = {
     previousSquare + dice.sum match {
       case LastSquare => Win(name) :: moves
 
@@ -45,10 +44,4 @@ object MoveScriptWriter {
 
   private def finalizeEvents(roll: Roll, moves: List[Move], prankMove: List[Move]): List[Event] =
     roll +: (prankMove ++ moves).reverse
-
-  private def validateDice(dice: List[Int]): Either[GameError, List[Int]] =
-    if (dice.forall(die => die >= 1 && die <= 6))
-      Right(dice)
-    else
-      Left(DiceError)
 }

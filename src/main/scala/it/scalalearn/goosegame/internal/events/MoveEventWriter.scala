@@ -6,7 +6,7 @@ import it.scalalearn.goosegame.ui.errors.{DiceError, GameError}
 
 import scala.annotation.tailrec
 
-object MoveScriptWriter {
+object MoveEventWriter {
   def movePlayer(gameState: GameState, name: String, dice: Dice): Either[GameError, List[Event]] = {
     for {
       startSquare <- gameState.getPlayerSquare(name)

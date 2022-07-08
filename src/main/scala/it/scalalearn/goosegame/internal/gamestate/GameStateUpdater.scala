@@ -7,9 +7,9 @@ import it.scalalearn.goosegame.ui.output.OutputBuilder
 object GameStateUpdater {
   def updateState(gameState: GameState, events: List[Event]): Either[GameError, GameState] =
     events.foldLeft(Right(gameState): Either[GameError, GameState])((stateOrError, event) =>
-      stateOrError.flatMap(previousGameState => eventMatcher(previousGameState, event)))
+      stateOrError.flatMap(previousGameState => applyEvent(previousGameState, event)))
 
-  private def eventMatcher(previousGameState: GameState, event: Event): Either[GameError, GameState] =
+  private def applyEvent(previousGameState: GameState, event: Event): Either[GameError, GameState] =
     event match {
       case PlayerAdded(name) => addPlayer(previousGameState, name)
       case Prank(name, _, endSquare) => updatePlayerSquare(previousGameState, name, endSquare)

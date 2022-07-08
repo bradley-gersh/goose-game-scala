@@ -1,7 +1,7 @@
 package it.scalalearn.goosegame.ui.cli
 
 import it.scalalearn.goosegame.internal.gamestate.{GameState, GameStateUpdater}
-import it.scalalearn.goosegame.internal.events.{Event, MoveScriptWriter, QuitEvent, RosterScriptWriter, ScriptWriter}
+import it.scalalearn.goosegame.internal.events.{Event, QuitEvent, EventWriter}
 import it.scalalearn.goosegame.ui.cli.CliStrings.Prompt
 import it.scalalearn.goosegame.ui.errors.GameError
 import it.scalalearn.goosegame.ui.output.{Output, OutputBuilder}
@@ -30,7 +30,7 @@ object CommandLineInterface {
   def processInput(gameState: GameState, input: String): Either[GameError, (GameState, List[Event], Output)] = {
     for {
       command <- CommandReader.interpret(input)
-      events <- ScriptWriter.writeEvents(gameState, command)
+      events <- EventWriter.writeEvents(gameState, command)
       newGameState <- GameStateUpdater.updateState(gameState, events)
     } yield (newGameState, events, OutputBuilder.transcribe(newGameState, events))
   }

@@ -31,8 +31,10 @@ object CommandLineInterface {
     for {
       command <- CommandReader.interpret(input)
       events <- EventWriter.writeEvents(gameState, command)
-      newGameState <- GameStateUpdater.updateState(gameState, events)
-    } yield (newGameState, events, OutputBuilder.transcribe(newGameState, events))
+    } yield {
+      val newGameState = GameStateUpdater.updateState(gameState, events)
+      (newGameState, events, OutputBuilder.transcribe(newGameState, events))
+    }
   }
 
   def hasQuitEvent(events: List[Event]): Boolean = events.contains(QuitEvent)

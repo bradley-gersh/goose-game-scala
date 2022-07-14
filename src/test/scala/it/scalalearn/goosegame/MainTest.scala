@@ -32,10 +32,17 @@ class MainTest extends AnyFunSuite {
     assert(getScript(inputs, gameState) == refOutputs)
   }
 
-  test("Duplicate players are not allowed") {
+  test("Add two players to the game") {
     val gameState = GameState()
     val inputs = List("add player Pippo", "add player Pluto")
     val refOutputs = List("players: Pippo", "players: Pippo, Pluto")
+    assert(getScript(inputs, gameState) == refOutputs)
+  }
+
+  test("Duplicate players are not allowed") {
+    val gameState = GameState()
+    val inputs = List("add player Pippo", "add player Pippo")
+    val refOutputs = List("players: Pippo", "Pippo: already existing player")
     assert(getScript(inputs, gameState) == refOutputs)
   }
 
